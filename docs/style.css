@@ -1,0 +1,180 @@
+/* Modern Glassmorphic & Material Design 3 Styles for EcoTrace AI Web */
+
+@layer base {
+    :root {
+        --md-sys-color-primary: #386B1D;
+        --md-sys-color-on-primary: #ffffff;
+        --md-sys-color-primary-container: #e6f2de;
+        --md-sys-color-on-primary-container: #0d1d06;
+        --md-sys-color-surface: #f4f9f1;
+        --md-sys-color-on-surface: #1a1c18;
+        --md-sys-color-surface-variant: #e1e4da;
+        --md-sys-color-on-surface-variant: #44483e;
+        --md-sys-color-background: #fdfdfc;
+        --md-sys-color-on-background: #1a1c18;
+        --md-sys-color-outline: #75796c;
+    }
+
+    .dark {
+        --md-sys-color-primary: #9cd67e;
+        --md-sys-color-on-primary: #123800;
+        --md-sys-color-primary-container: #224e07;
+        --md-sys-color-on-primary-container: #b8f398;
+        --md-sys-color-surface: #10140e;
+        --md-sys-color-on-surface: #e2e3dd;
+        --md-sys-color-surface-variant: #44483d;
+        --md-sys-color-on-surface-variant: #c4c8ba;
+        --md-sys-color-background: #0d120a;
+        --md-sys-color-on-background: #e2e3dd;
+        --md-sys-color-outline: #8e9285;
+    }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.3);
+    border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.5);
+}
+
+/* Glassmorphism utility classes */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.dark .glass-panel {
+    background: rgba(16, 20, 14, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Glow effects */
+.glow-green {
+    box-shadow: 0 0 30px -5px rgba(56, 107, 29, 0.2);
+}
+.dark .glow-green {
+    box-shadow: 0 0 30px -5px rgba(156, 214, 126, 0.15);
+}
+
+.glow-energy {
+    box-shadow: 0 0 30px -5px rgba(234, 179, 8, 0.2);
+}
+
+/* Step Indicator & Linear Progress Smooth Transitions */
+.progress-bar-fill {
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Ring Animations */
+@keyframes dash {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+.animate-dash {
+    stroke-dasharray: 283;
+    stroke-dashoffset: 283;
+    animation: dash 1.5s ease-out forwards;
+}
+
+/* Slide up and fade transitions */
+.screen-transition {
+    animation: slideUpFade 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ripple effect style simulation */
+.ripple-button {
+    position: relative;
+    overflow: hidden;
+}
+.ripple-button::after {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: scale(10, 10);
+    opacity: 0;
+    transition: transform .5s, opacity 1s;
+}
+.ripple-button:active::after {
+    transform: scale(0, 0);
+    opacity: .3;
+    transition: 0s;
+}
+
+/* Timeline vertical line layout */
+.timeline-line::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 17px;
+    width: 2px;
+    background-color: rgba(56, 107, 29, 0.2);
+}
+.dark .timeline-line::before {
+    background-color: rgba(156, 214, 126, 0.15);
+}
+
+/* Typing indicator dots */
+@keyframes typingDot {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-4px); }
+}
+.typing-dot {
+    animation: typingDot 1.4s infinite ease-in-out;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* Custom Badge Level-Up Confetti keyframes */
+@keyframes floatUp {
+    0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-20vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+.confetti {
+    position: absolute;
+    width: 8px;
+    height: 16px;
+    opacity: 0;
+    z-index: 999;
+    animation: floatUp 3s linear forwards;
+}

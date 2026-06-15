@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoTrace AI | Understand, Track, and Reduce Your Carbon Footprint with AI</title>
+    <title>EcoTrace AI Dashboard | Track and Reduce Your Carbon Footprint with AI</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -18,810 +21,661 @@
                         mono: ['"JetBrains Mono"', 'monospace'],
                     },
                     colors: {
-                        emerald: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#10b981',
-                            600: '#059669',
-                            700: '#047857',
-                        },
-                        forest: {
-                            50: '#f4f9f1',
-                            100: '#e6f2de',
-                            500: '#386B1D',
-                            600: '#2d5617',
-                            700: '#224111',
-                            950: '#0d1d06',
+                        primary: {
+                            solid: '#386B1D',
+                            light: '#e6f2de'
                         }
                     }
                 }
             }
         }
     </script>
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-        .gradient-bg {
-            background: linear-gradient(135deg, #f4f9f1 0%, #e8f5e9 100%);
-        }
-        .dark .gradient-bg {
-            background: linear-gradient(135deg, #0d1d06 0%, #0c1108 100%);
-        }
-        .hero-glow {
-            box-shadow: 0 0 80px -20px rgba(56, 107, 29, 0.4);
-        }
-    </style>
 </head>
-<body class="bg-gray-50 text-gray-900 transition-colors duration-300 dark:bg-zinc-950 dark:text-zinc-100">
+<body class="bg-gray-50 text-gray-900 transition-colors duration-300 dark:bg-zinc-950 dark:text-zinc-100 font-sans selection:bg-emerald-200">
 
-    <!-- Header Navigation -->
-    <header class="sticky top-0 z-50 backdrop-blur-md bg-white/85 dark:bg-zinc-950/85 border-b border-gray-100 dark:border-zinc-800 transition-colors">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-                <span class="text-3xl">🌱</span>
-                <span class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-forest-500 to-emerald-500 bg-clip-text text-transparent">
-                    EcoTrace AI
-                </span>
-            </div>
+    <!-- === A. FULL SCREEN ONBOARDING HERO CARD === -->
+    <section id="onboardingSection" class="fixed inset-0 z-50 overflow-y-auto bg-gradient-to-br from-emerald-50 via-teal-50 to-white dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 p-4 md:p-8 flex items-center justify-center" style="display: none;">
+        <div class="w-full max-w-2xl bg-white/90 dark:bg-zinc-900/95 p-6 md:p-10 rounded-[32px] border border-gray-100 dark:border-zinc-800 shadow-xl backdrop-blur-md flex flex-col justify-between min-h-[580px] glow-green">
             
-            <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold text-gray-600 dark:text-zinc-300">
-                <a href="#about" class="hover:text-forest-500 transition-colors">About</a>
-                <a href="#features" class="hover:text-forest-500 transition-colors">Features</a>
-                <a href="#how-it-works" class="hover:text-forest-500 transition-colors">How It Works</a>
-                <a href="#screenshots" class="hover:text-forest-500 transition-colors">Screenshots</a>
-                <a href="#tech-stack" class="hover:text-forest-500 transition-colors">Specs</a>
-                <a href="#setup" class="hover:text-forest-500 transition-colors">Setup</a>
-            </nav>
+            <!-- Setup Header Progress -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl">🌱</span>
+                        <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">EcoTrace AI</span>
+                    </div>
+                    <button onclick="toggleTheme()" class="p-2.5 rounded-2xl bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 transition">🌓</button>
+                </div>
+                <!-- Linear Progress -->
+                <div class="w-full bg-gray-100 dark:bg-zinc-800 h-2.5 rounded-full overflow-hidden">
+                    <div id="obProgressFill" class="progress-bar-fill bg-emerald-500 h-full w-[14%] rounded-full"></div>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span id="obIndicatorText" class="font-bold text-emerald-600 dark:text-emerald-400">Question 1 of 7</span>
+                    <span class="text-gray-400">One minute setup • AI engine tracks your habits</span>
+                </div>
+            </div>
 
-            <div class="flex items-center gap-4">
-                <button id="theme-btn" class="p-2.5 rounded-2xl bg-gray-100 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 transition" aria-label="Toggle dark mode">
-                    🌓
+            <!-- Onboarding step containers -->
+            <div class="my-8 flex-1 flex flex-col justify-center">
+
+                <!-- Q0: Transport Type & Distance -->
+                <div id="ob_card_0" class="ob-container space-y-5 hidden">
+                    <div class="text-center space-y-1">
+                        <h3 class="text-2xl font-extrabold tracking-tight">What is your primary commuting method?</h3>
+                        <p class="text-sm text-gray-500 dark:text-zinc-400">Select standard travel profiles or edit average distance.</p>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <div onclick="selectChoice('transportType', 'car')" data-field="transportType" data-val="car" class="p-4 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 text-center cursor-pointer hover:border-emerald-400 transition">
+                            <span class="text-3xl block">🚗</span>
+                            <span class="text-xs font-bold block mt-2">Petrol Car</span>
+                        </div>
+                        <div onclick="selectChoice('transportType', 'motorcycle')" data-field="transportType" data-val="motorcycle" class="p-4 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 text-center cursor-pointer hover:border-emerald-400 transition">
+                            <span class="text-3xl block">🏍️</span>
+                            <span class="text-xs font-bold block mt-2">Motorcycle</span>
+                        </div>
+                        <div onclick="selectChoice('transportType', 'bus')" data-field="transportType" data-val="bus" class="p-4 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 text-center cursor-pointer hover:border-emerald-400 transition">
+                            <span class="text-3xl block">🚌</span>
+                            <span class="text-xs font-bold block mt-2">Public Bus</span>
+                        </div>
+                        <div onclick="selectChoice('transportType', 'train')" data-field="transportType" data-val="train" class="p-4 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 text-center cursor-pointer hover:border-emerald-400 transition">
+                            <span class="text-3xl block">🚇</span>
+                            <span class="text-xs font-bold block mt-2">Metro / Train</span>
+                        </div>
+                        <div onclick="selectChoice('transportType', 'bicycle')" data-field="transportType" data-val="bicycle" class="p-4 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 text-center cursor-pointer hover:border-emerald-400 transition">
+                            <span class="text-3xl block">🚲</span>
+                            <span class="text-xs font-bold block mt-2">Bicycle</span>
+                        </div>
+                        <div onclick="selectChoice('transportType', 'walk')" data-field="transportType" data-val="walk" class="p-4 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 text-center cursor-pointer hover:border-emerald-400 transition">
+                            <span class="text-3xl block">🚶</span>
+                            <span class="text-xs font-bold block mt-2">Walk</span>
+                        </div>
+                    </div>
+                    <div class="pt-2">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Daily commute distance (km):</label>
+                        <input type="text" id="ob_transport_dist" class="w-full p-4 rounded-2xl bg-gray-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-emerald-500 font-semibold text-sm outline-none" value="25">
+                    </div>
+                </div>
+
+                <!-- Q1: Energy Habit & Usage -->
+                <div id="ob_card_1" class="ob-container space-y-5 hidden">
+                    <div class="text-center space-y-1">
+                        <h3 class="text-2xl font-extrabold tracking-tight">Home energy consumption</h3>
+                        <p class="text-sm text-gray-500 dark:text-zinc-400">Select standard household behavior or edit precise monthly usage (kWh).</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div onclick="selectChoice('energyHabit', 'low')" data-field="energyHabit" data-val="low" class="p-4 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer hover:border-emerald-400 transition flex items-center gap-3">
+                            <span class="text-2xl">🌱</span>
+                            <div class="text-left">
+                                <span class="text-xs font-bold block">Low Impact</span>
+                                <span class="text-[10px] text-gray-400 block">Minimal AC, LEDs (~150 kWh/mo)</span>
+                            </div>
+                        </div>
+                        <div onclick="selectChoice('energyHabit', 'average')" data-field="energyHabit" data-val="average" class="p-4 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer hover:border-emerald-400 transition flex items-center gap-3">
+                            <span class="text-2xl">🔌</span>
+                            <div class="text-left">
+                                <span class="text-xs font-bold block">Average Impact</span>
+                                <span class="text-[10px] text-gray-400 block">Standard appliances (~360 kWh/mo)</span>
+                            </div>
+                        </div>
+                        <div onclick="selectChoice('energyHabit', 'high')" data-field="energyHabit" data-val="high" class="p-4 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer hover:border-emerald-400 transition flex items-center gap-3">
+                            <span class="text-2xl">🔥</span>
+                            <div class="text-left">
+                                <span class="text-xs font-bold block">High Impact</span>
+                                <span class="text-[10px] text-gray-400 block">Heavy electric-heat / AC (~750 kWh/mo)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pt-2">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">Monthly Power Usage (kWh):</label>
+                        <input type="text" id="ob_energy_usage" class="w-full p-4 rounded-2xl bg-gray-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-emerald-500 font-semibold text-sm outline-none" value="360">
+                    </div>
+                </div>
+
+                <!-- Q2: Diet -->
+                <div id="ob_card_2" class="ob-container space-y-5 hidden">
+                    <div class="text-center space-y-1">
+                        <h3 class="text-2xl font-extrabold tracking-tight">What is your typical diet profile?</h3>
+                        <p class="text-sm text-gray-500 dark:text-zinc-400">Dietary farming has wide global methane and forestry implications.</p>
+                    </div>
+                    <div class="space-y-2.5">
+                        <div onclick="selectChoice('dietType', 'vegan')" data-field="dietType" data-val="vegan" class="p-4 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer hover:border-emerald-400 transition flex items-center gap-4">
+                            <span class="text-3xl">🥬</span>
+                            <div class="text-left">
+                                <span class="text-sm font-bold block">Fully Vegan</span>
+                                <span class="text-xs text-gray-400 block">Entirely plant-focused meals. Minimal ecological emissions index.</span>
+                            </div>
+                        </div>
+                        <div onclick="selectChoice('dietType', 'vegetarian')" data-field="dietType" data-val="vegetarian" class="p-4 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer hover:border-emerald-400 transition flex items-center gap-4">
+                            <span class="text-3xl">🧀</span>
+                            <div class="text-left">
+                                <span class="text-sm font-bold block">Vegetarian</span>
+                                <span class="text-xs text-gray-400 block">No meat, includes cheese and dairy. Low baseline emissions.</span>
+                            </div>
+                        </div>
+                        <div onclick="selectChoice('dietType', 'mixed')" data-field="dietType" data-val="mixed" class="p-4 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer hover:border-emerald-400 transition flex items-center gap-4">
+                            <span class="text-3xl">🥗</span>
+                            <div class="text-left">
+                                <span class="text-sm font-bold block">Mixed Diet</span>
+                                <span class="text-xs text-gray-400 block">Average chicken, dairy and occasional beef. Moderate baseline.</span>
+                            </div>
+                        </div>
+                        <div onclick="selectChoice('dietType', 'meat-heavy')" data-field="dietType" data-val="meat-heavy" class="p-4 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer hover:border-emerald-400 transition flex items-center gap-4">
+                            <span class="text-3xl">🥩</span>
+                            <div class="text-left">
+                                <span class="text-sm font-bold block">Meat-Heavy Custom</span>
+                                <span class="text-xs text-gray-400 block">Traditional daily beef, pork or poultry. Highly carbon intensive.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q3: Flights -->
+                <div id="ob_card_3" class="ob-container space-y-5 hidden">
+                    <div class="text-center space-y-1">
+                        <h3 class="text-2xl font-extrabold tracking-tight">How often do you take flights?</h3>
+                        <p class="text-sm text-gray-500 dark:text-zinc-400">Air travel places massive concentrated greenhouse burdens on atmospheres.</p>
+                    </div>
+                    <div class="space-y-3">
+                        <div onclick="selectChoice('flightFreq', 'none')" data-field="flightFreq" data-val="none" class="p-5 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer hover:border-emerald-400 transition flex items-center gap-4">
+                            <span class="text-3xl">🚂</span>
+                            <div class="text-left">
+                                <span class="text-sm font-bold block">Zero / None</span>
+                                <span class="text-xs text-gray-400 block">You focus exclusively on overland rail or automobile transit.</span>
+                            </div>
+                        </div>
+                        <div onclick="selectChoice('flightFreq', 'rare')" data-field="flightFreq" data-val="rare" class="p-5 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer hover:border-emerald-400 transition flex items-center gap-4">
+                            <span class="text-3xl">✈️</span>
+                            <div class="text-left">
+                                <span class="text-sm font-bold block">Rare (1-3 short trips yearly)</span>
+                                <span class="text-xs text-gray-400 block">Includes simple local holiday commutes. Moderate annual slice.</span>
+                            </div>
+                        </div>
+                        <div onclick="selectChoice('flightFreq', 'frequent')" data-field="flightFreq" data-val="frequent" class="p-5 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer hover:border-emerald-400 transition flex items-center gap-4">
+                            <span class="text-3xl">🌎</span>
+                            <div class="text-left">
+                                <span class="text-sm font-bold block">Frequent / International</span>
+                                <span class="text-xs text-gray-400 block">Multiple long-haul business or trans-continental holiday trips. Extreme.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q4: Shopping style -->
+                <div id="ob_card_4" class="ob-container space-y-5 hidden">
+                    <div class="text-center space-y-1">
+                        <h3 class="text-2xl font-extrabold tracking-tight">What is your shopping habit style?</h3>
+                        <p class="text-sm text-gray-500 dark:text-zinc-400">Packaging, hardware mining and global container ships add CO₂.</p>
+                    </div>
+                    <div class="space-y-3">
+                        <div onclick="selectChoice('shoppingFreq', 'minimalist')" data-field="shoppingFreq" data-val="minimalist" class="p-5 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer hover:border-emerald-400 transition flex items-center gap-4">
+                            <span class="text-3xl">📦</span>
+                            <div class="text-left">
+                                <span class="text-sm font-bold block">Minimalist Consumer</span>
+                                <span class="text-xs text-gray-400 block">Buy mostly secondhand items, recycle tech, minimal fast-fashion. Excellent.</span>
+                            </div>
+                        </div>
+                        <div onclick="selectChoice('shoppingFreq', 'average')" data-field="shoppingFreq" data-val="average" class="p-5 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer hover:border-emerald-400 transition flex items-center gap-4">
+                            <span class="text-3xl">🛍️</span>
+                            <div class="text-left">
+                                <span class="text-sm font-bold block">Average Retail Shopper</span>
+                                <span class="text-xs text-gray-400 block">Standard seasonal clothes, common gadgets upgrades. Standard impact.</span>
+                            </div>
+                        </div>
+                        <div onclick="selectChoice('shoppingFreq', 'shopper')" data-field="shoppingFreq" data-val="shopper" class="p-5 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer hover:border-emerald-400 transition flex items-center gap-4">
+                            <span class="text-3xl">💎</span>
+                            <div class="text-left">
+                                <span class="text-sm font-bold block">Heavy Tech & Apparel Shopper</span>
+                                <span class="text-xs text-gray-400 block">Frequent online fast shipping packages, latest electronics. Heavy footprint.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q5: Waste Habit -->
+                <div id="ob_card_5" class="ob-container space-y-5 hidden">
+                    <div class="text-center space-y-1">
+                        <h3 class="text-2xl font-extrabold tracking-tight">What are your typical waste recycling habits?</h3>
+                        <p class="text-sm text-gray-500 dark:text-zinc-400">Rotting organic food scraps in plastic bags yield landfill methane.</p>
+                    </div>
+                    <div class="space-y-3">
+                        <div onclick="selectChoice('wasteHabit', 'low')" data-field="wasteHabit" data-val="low" class="p-5 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer hover:border-emerald-400 transition flex items-center gap-4">
+                            <span class="text-3xl">♻️</span>
+                            <div class="text-left">
+                                <span class="text-sm font-bold block">Excellent (Recycle & Compost)</span>
+                                <span class="text-xs text-gray-400 block">Meticulous paper sorting, separate food waste pile composting. Minimal methane.</span>
+                            </div>
+                        </div>
+                        <div onclick="selectChoice('wasteHabit', 'average')" data-field="wasteHabit" data-val="average" class="p-5 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer hover:border-emerald-400 transition flex items-center gap-4">
+                            <span class="text-3xl font-bold">🗑️</span>
+                            <div class="text-left">
+                                <span class="text-sm font-bold block">Average Sorting Habits</span>
+                                <span class="text-xs text-gray-400 block">Solid recycling of plastic and paper, some kitchen waste leads to garbage load.</span>
+                            </div>
+                        </div>
+                        <div onclick="selectChoice('wasteHabit', 'high')" data-field="wasteHabit" data-val="high" class="p-5 rounded-3xl border border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer hover:border-emerald-400 transition flex items-center gap-4">
+                            <span class="text-3xl">🥤</span>
+                            <div class="text-left">
+                                <span class="text-sm font-bold block">No separation / sorting</span>
+                                <span class="text-xs text-gray-400 block">All papers, organic rinds, plastics sent to the unified dumpbins. Heavy decay gases.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q6: Household size -->
+                <div id="ob_card_6" class="ob-container space-y-5 hidden">
+                    <div class="text-center space-y-1">
+                        <h3 class="text-2xl font-extrabold tracking-tight">How many people share your household?</h3>
+                        <p class="text-sm text-gray-500 dark:text-zinc-400">Sharing utilities splits energy heat and boiler emissions efficiently.</p>
+                    </div>
+                    <div class="pt-4 text-center">
+                        <span class="text-7xl block animate-bounce">👥</span>
+                        <div class="mt-6 max-w-xs mx-auto">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Total Household Members:</label>
+                            <input type="number" id="ob_household_size" min="1" class="w-full text-center p-4 rounded-2xl bg-gray-100 dark:bg-zinc-800 focus:ring-2 focus:ring-emerald-500 font-extrabold text-xl outline-none border-none" value="2">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer navigation row -->
+            <div class="flex items-center justify-between gap-4 border-t border-gray-50 dark:border-zinc-800/60 pt-6">
+                <button id="obBackBtn" onclick="prevOnboarding()" class="px-6 py-4 rounded-2xl bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 text-sm font-bold transition flex items-center gap-1.5 text-gray-700 dark:text-zinc-200">
+                    <span>←</span> Back
                 </button>
-                <a href="#setup" class="bg-forest-500 hover:bg-forest-600 text-white font-bold px-5 py-2.5 rounded-2xl text-sm shadow-md shadow-forest-500/10 transition hover:-translate-y-0.5">
-                    Cloning Guide
-                </a>
+                <button onclick="nextOnboarding()" class="flex-1 py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 font-bold text-sm text-white transition flex items-center justify-center gap-2 max-w-xs ml-auto shadow-md">
+                    <span id="obNextText">Next Question</span> <span>→</span>
+                </button>
             </div>
-        </div>
-    </header>
 
-    <!-- 1. Hero Section -->
-    <section class="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28 gradient-bg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="lg:grid lg:grid-cols-12 lg:gap-12 items-center">
-                <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
-                    <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-forest-100 text-forest-700 dark:bg-forest-950/80 dark:text-forest-100 text-xs font-bold uppercase tracking-wider">
-                        ✨ Gemini AI 3.5 & Compose Powered
-                    </span>
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-none text-gray-900 dark:text-white">
-                        EcoTrace AI
-                    </h1>
-                    <p class="text-xl sm:text-2xl font-medium text-forest-500 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                        Understand, Track, and Reduce Your Carbon Footprint with AI.
-                    </p>
-                    <p class="text-base sm:text-lg text-gray-500 dark:text-zinc-400 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                        An advanced, offline-resilient Android application styled in premium Jetpack Compose & Material 3. Calculate baselines, talk to a localized AI coach, run predictive calculations, and earn rewards instantly.
-                    </p>
-                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
-                        <a href="https://github.com/errollajayendra" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-forest-500 hover:bg-forest-600 text-white font-bold shadow-lg shadow-forest-500/20 transition hover:-translate-y-0.5 text-sm">
-                            💻 View Source Code
-                        </a>
-                        <a href="#setup" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-zinc-200 font-bold transition hover:bg-gray-50 dark:hover:bg-zinc-800 text-sm">
-                            📥 Download App APK
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Showcase Phone Frame Simulator -->
-                <div class="lg:col-span-5 mt-16 lg:mt-0 flex justify-center">
-                    <div class="relative w-72 sm:w-80 h-[580px] rounded-[48px] bg-zinc-950 border-8 border-zinc-800 shadow-2xl p-4 overflow-hidden flex flex-col justify-between hero-glow">
-                        <div class="flex justify-between items-center px-4 pb-2 border-b border-zinc-900 text-[10px] text-zinc-500 font-bold">
-                            <span>Good Morning</span>
-                            <div class="w-16 h-4 bg-zinc-900 rounded-full flex items-center justify-center text-[7px] text-emerald-400 font-extrabold tracking-widest">
-                                AI ONLINE
-                            </div>
-                            <span>100% 🔋</span>
-                        </div>
-
-                        <!-- Inside phone screen mockup -->
-                        <div class="flex-1 overflow-y-auto mt-4 space-y-4 pr-1 text-xs">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-[9px] text-forest-500 font-bold uppercase tracking-wider">Good Morning, Alex</p>
-                                    <h4 class="font-extrabold text-white text-base">EcoTrace AI</h4>
-                                </div>
-                                <div class="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500 flex items-center justify-center text-[10px] font-extrabold text-emerald-400">
-                                    AS
-                                </div>
-                            </div>
-
-                            <!-- Dual Cards Grid -->
-                            <div class="grid grid-cols-2 gap-2">
-                                <div class="bg-zinc-900 p-3 rounded-2xl border border-zinc-800 flex flex-col justify-between h-24">
-                                    <span class="text-[8px] font-bold text-zinc-400">GREEN SCORE</span>
-                                    <div class="flex justify-between items-end">
-                                        <span class="text-2xl font-black text-white">88</span>
-                                        <span class="text-[8px] font-extrabold text-[#386B1D]">GOLD</span>
-                                    </div>
-                                </div>
-                                <div class="bg-[#386B1D] p-3 rounded-2xl flex flex-col justify-between h-24 text-white">
-                                    <span class="text-[8px] font-bold text-white/80">ACTIVE GOAL</span>
-                                    <div class="space-y-1">
-                                        <p class="text-[9px] font-medium">🔥 Streak: 5 Days</p>
-                                        <div class="w-full bg-white/20 h-1 rounded-full overflow-hidden">
-                                            <div class="bg-white w-3/4 h-full"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Main Circular Footprint -->
-                            <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-3xl">
-                                <div class="flex items-center justify-between text-[10px]">
-                                    <span class="text-emerald-400 font-bold">Today's Footprint</span>
-                                    <span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-bold">▼ 12% vs Avg</span>
-                                </div>
-                                <div class="flex items-baseline gap-1 mt-2">
-                                    <span class="text-3xl font-black text-white">14.2</span>
-                                    <span class="text-xs text-zinc-400 font-bold">kg CO₂e</span>
-                                </div>
-                                <p class="text-[9px] text-zinc-400 leading-normal mt-2">
-                                    That's equivalent to charging 1,728 smartphones. Nice green transit choice!
-                                </p>
-                            </div>
-
-                            <!-- Live AI coach recommendation bubble tooltip representation -->
-                            <div class="bg-[#10b981]/10 border border-[#10b981]/20 p-3 rounded-2xl text-[9px] relative">
-                                <span class="text-emerald-400 font-bold block mb-1">✨ AI COACH TIP</span>
-                                <p class="text-zinc-300 leading-normal italic">
-                                    "Commuter transport caused 55% of yesterday's trigger. Avoid solo car rides to improve your profile!"
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Phone Bottom Nav representation -->
-                        <div class="flex justify-around items-center pt-2 border-t border-zinc-900 text-[9px] font-bold text-zinc-500 mt-2">
-                            <span class="text-emerald-400">🏠 Home</span>
-                            <span>📋 Log</span>
-                            <span>📈 Insights</span>
-                            <span>💬 Coach</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </section>
 
-    <!-- 2. About the Project -->
-    <section id="about" class="py-20 bg-white dark:bg-zinc-900 border-b border-gray-100 dark:border-zinc-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="max-w-3xl mx-auto text-center mb-16">
-                <span class="text-xs font-bold uppercase tracking-wider text-forest-500">The Context & Mission</span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-2 text-gray-900 dark:text-white">
-                    About The EcoTrace Mission
-                </h2>
-                <div class="w-12 h-1 bg-forest-500 mx-auto rounded-full mt-4"></div>
-                <p class="text-base sm:text-lg text-gray-500 dark:text-zinc-400 leading-relaxed mt-6">
-                    Greenhouse calculators shouldn't be about endless spreadsheets or boring cold reports. EcoTrace AI reimagines sustainability by mapping cold, physical metrics into actionable visual models. With an integrated local inference state and Gemini AI client, it enables intelligent forecasting.
-                </p>
-            </div>
+    <!-- === B. MAIN APPLICATION WORKSPACE FRAME === -->
+    <div id="mainAppSection" class="hidden min-h-screen flex flex-col md:flex-row bg-gray-50 dark:bg-zinc-950 transition-colors">
 
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div class="space-y-6">
-                    <div class="p-6 bg-gray-50 dark:bg-zinc-800/50 rounded-2xl border border-gray-100 dark:border-zinc-800 flex gap-4">
-                        <span class="text-3xl">🎯</span>
-                        <div>
-                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Primary Purpose</h3>
-                            <p class="text-sm text-gray-500 dark:text-zinc-400 leading-relaxed">
-                                Establish custom user baselines using home energy footprints, commute parameters, and weekly grocery profiles. These values formulate precise calculation blocks instantly.
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div class="p-6 bg-gray-50 dark:bg-zinc-800/50 rounded-2xl border border-gray-100 dark:border-zinc-800 flex gap-4">
-                        <span class="text-3xl">🧠</span>
-                        <div>
-                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">How AI Empowers Your Reduction</h3>
-                            <p class="text-sm text-gray-500 dark:text-zinc-400 leading-relaxed">
-                                The integrated **Google Gemini 3.5 API Client** works securely against dynamic user states. The engine understands adjustments instantly, sending tailored warnings, supportive encouragement, and scenario advice straight to your tracker dashboard.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Interactive live JavaScript mini scenario calculator (highly engaging visual element) -->
-                <div class="p-8 bg-gray-50 dark:bg-zinc-800/80 rounded-3xl border border-gray-100 dark:border-zinc-700 shadow-xl">
-                    <h3 class="text-lg font-bold flex items-center gap-2 text-forest-500 mb-2">
-                        <span>🔬</span> Interactive Scenario Sandbox
-                    </h3>
-                    <p class="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed mb-6">
-                        Manipulate sliders/variables to see how behavioral changes instantly impact your carbon target calculations.
-                    </p>
-
-                    <div class="space-y-6">
-                        <div>
-                            <div class="flex justify-between text-xs font-semibold mb-2">
-                                <span class="uppercase">Weekly Commute Diverted (KM)</span>
-                                <span id="-sandbox-dist-label" class="text-forest-500 font-bold">50 KM</span>
-                            </div>
-                            <input id="-sandbox-dist" type="range" min="0" max="150" value="50" class="w-full accent-forest-500 h-2 bg-gray-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer">
-                        </div>
-
-                        <div>
-                            <div class="flex justify-between text-xs font-semibold mb-2">
-                                <span class="uppercase">Alternative Mode Choice</span>
-                            </div>
-                            <select id="-sandbox-mode" class="w-full text-xs p-3.5 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl text-gray-700 dark:text-zinc-300 font-medium focus:outline-none focus:ring-2 focus:ring-forest-500">
-                                <option value="0.0">Bicycle / Pedestrian Walk (0.0 kg/km)</option>
-                                <option value="0.04">Electric Scooter (0.04 kg/km)</option>
-                                <option value="0.08">Subway system (0.08 kg/km)</option>
-                            </select>
-                        </div>
-
-                        <!-- Sandbox Math Output Block -->
-                        <div class="p-4 bg-forest-100/50 dark:bg-forest-950/20 rounded-2xl flex justify-between items-center">
-                            <div>
-                                <span class="text-[9px] font-bold text-forest-500 block uppercase mb-0.5">Carbon Avoided</span>
-                                <span class="text-2xl font-black text-gray-900 dark:text-white" id="-sandbox-result-co2">9.0 kg <span class="text-xs font-semibold text-gray-400">CO₂e/wk</span></span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-[9px] font-bold text-gray-400 block uppercase mb-0.5">Offset Equivalent</span>
-                                <span class="text-sm font-bold text-forest-500" id="-sandbox-result-phones">~1,095 Phones</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 3. Feature Showcase -->
-    <section id="features" class="py-20 lg:py-28 bg-gray-50 dark:bg-zinc-950/40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="max-w-3xl mx-auto text-center mb-16">
-                <span class="text-xs font-bold uppercase tracking-wider text-forest-500">Engineered Perfection</span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-2 text-gray-900 dark:text-white">
-                    App Feature Showcase
-                </h2>
-                <div class="w-12 h-1 bg-forest-500 mx-auto rounded-full mt-4"></div>
-                <p class="text-sm sm:text-base text-gray-500 dark:text-zinc-400 leading-relaxed mt-6">
-                    A comprehensive, high-quality development ecosystem optimized for mobile environments.
-                </p>
-            </div>
-
-            <!-- 10 Exact features listed clearly and elegantly -->
-            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- 1. Smart Onboarding -->
-                <div class="p-6 bg-white dark:bg-zinc-900 border border-gray-150 dark:border-zinc-800 rounded-3xl shadow-sm space-y-3">
-                    <span class="text-3xl block">🔑</span>
-                    <h3 class="text-base font-bold text-gray-950 dark:text-white">1. Smart Onboarding</h3>
-                    <p class="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">
-                        Input fuel consumption metrics, diet styles, and weekly commute miles through clean interactive pickers to construct your personalized carbon baseline.
-                    </p>
-                </div>
-
-                <!-- 2. AI Carbon Estimation -->
-                <div class="p-6 bg-white dark:bg-zinc-900 border border-gray-150 dark:border-zinc-800 rounded-3xl shadow-sm space-y-3">
-                    <span class="text-3xl block">📊</span>
-                    <h3 class="text-base font-bold text-gray-950 dark:text-white">2. AI Carbon Estimation Core</h3>
-                    <p class="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">
-                        Evaluates input choices automatically against global standards to produce equivalent measurements mapped into understandable equivalents instantly.
-                    </p>
-                </div>
-
-                <!-- 3. Daily Tracking -->
-                <div class="p-6 bg-white dark:bg-zinc-900 border border-gray-150 dark:border-zinc-800 rounded-3xl shadow-sm space-y-3">
-                    <span class="text-3xl block">✍️</span>
-                    <h3 class="text-base font-bold text-gray-950 dark:text-white">3. Daily Habit Multi-Log</h3>
-                    <p class="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">
-                        Dynamically modify daily parameters (e.g. tracking transport choices, appliances active, diet habits) to recalculate emissions.
-                    </p>
-                </div>
-
-                <!-- 4. Interactive Analytics -->
-                <div class="p-6 bg-white dark:bg-zinc-900 border border-gray-150 dark:border-zinc-800 rounded-3xl shadow-sm space-y-3">
-                    <span class="text-3xl block">📉</span>
-                    <h3 class="text-base font-bold text-gray-950 dark:text-white">4. Interactive Impact Charts</h3>
-                    <p class="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">
-                        High-contrast, responsive graphs and progressive bars let you analyze historical insights and quickly pinpoint major carbon triggers.
-                    </p>
-                </div>
-
-                <!-- 5. Personalized Recommendations -->
-                <div class="p-6 bg-white dark:bg-zinc-900 border border-gray-150 dark:border-zinc-800 rounded-3xl shadow-sm space-y-3">
-                    <span class="text-3xl block">✨</span>
-                    <h3 class="text-base font-bold text-gray-950 dark:text-white">5. Intelligent AI Recommendation Box</h3>
-                    <p class="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">
-                        The dashboard features an integrated AI advisor that provides contextual guidelines based on your daily logs and baseline choices.
-                    </p>
-                </div>
-
-                <!-- 6. Scenario Simulator -->
-                <div class="p-6 bg-white dark:bg-zinc-900 border border-gray-150 dark:border-zinc-800 rounded-3xl shadow-sm space-y-3">
-                    <span class="text-3xl block">🧪</span>
-                    <h3 class="text-base font-bold text-gray-950 dark:text-white">6. Alternative Scenario Simulator</h3>
-                    <p class="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">
-                        Run simulated scenario adjustments to mathematically predict weekly or annual emissions offsets before committing to real changes.
-                    </p>
-                </div>
-
-                <!-- 7. Green Score and Badges -->
-                <div class="p-6 bg-white dark:bg-zinc-900 border border-gray-150 dark:border-zinc-800 rounded-3xl shadow-sm space-y-3">
-                    <span class="text-3xl block">🏆</span>
-                    <h3 class="text-base font-bold text-gray-950 dark:text-white">7. Green Score and Trophies</h3>
-                    <p class="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">
-                        Earn levels and accumulate eco-points. Unlock badges like *Energy Miser* or *Transit Crusader* to celebrate your green milestones.
-                    </p>
-                </div>
-
-                <!-- 8. Community Challenges -->
-                <div class="p-6 bg-white dark:bg-zinc-900 border border-[#E2E3D8] dark:border-zinc-800 rounded-3xl shadow-sm space-y-3">
-                    <span class="text-3xl block">👥</span>
-                    <h3 class="text-base font-bold text-gray-950 dark:text-white">8. Active Community Challenges</h3>
-                    <p class="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">
-                        Complete community-wide sprint cards (e.g., zero plastic for 5 days or walking routines) to secure bonus score points.
-                    </p>
-                </div>
-
-                <!-- 9. Learning Center -->
-                <div class="p-6 bg-white dark:bg-zinc-900 border border-[#E2E3D8] dark:border-zinc-800 rounded-3xl shadow-sm space-y-3">
-                    <span class="text-3xl block">📖</span>
-                    <h3 class="text-base font-bold text-gray-950 dark:text-white">9. Built-in Learning Portal</h3>
-                    <p class="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">
-                        Access bite-sized educational articles on carbon offsets, efficient household resource use, and actionable conservation.
-                    </p>
-                </div>
-
-                <!-- 10. Goal Tracking -->
-                <div class="p-6 bg-white dark:bg-zinc-900 border border-gray-150 dark:border-zinc-800 rounded-3xl shadow-sm space-y-3 sm:col-span-2 lg:col-span-1">
-                    <span class="text-3xl block">🎯</span>
-                    <h3 class="text-base font-bold text-gray-950 dark:text-white">10. Granular Goal Setting</h3>
-                    <p class="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">
-                        Configure customized, category-oriented green objectives. Monitor active progress bars to easily verify task completions.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 4. How It Works -->
-    <section id="how-it-works" class="py-20 lg:py-28 bg-white dark:bg-zinc-900 border-b border-gray-100 dark:border-zinc-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="max-w-3xl mx-auto text-center mb-16">
-                <span class="text-xs font-bold uppercase tracking-wider text-forest-500 font-mono">Workflow Steps</span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-2 text-gray-900 dark:text-white">
-                    Step-by-Step Breakdown
-                </h2>
-                <div class="w-12 h-1 bg-forest-500 mx-auto rounded-full mt-4"></div>
-                <p class="text-sm text-gray-500 dark:text-zinc-400 leading-relaxed mt-6">
-                    A continuous cycle designed to transform sustainability ideas into practical, everyday habits.
-                </p>
-            </div>
-
-            <!-- Steps listed sequentially as requested -->
-            <div class="grid sm:grid-cols-2 lg:grid-cols-6 gap-6">
-                <!-- 1 -->
-                <div class="p-6 bg-gray-50 dark:bg-zinc-800 rounded-2xl flex flex-col justify-between items-center text-center h-52">
-                    <span class="text-2xl font-black text-forest-500">01</span>
-                    <span class="text-xl">📋</span>
+        <!-- 1. Left Navigation Sidebar (Desktop view) -->
+        <aside class="hidden md:flex flex-col w-72 bg-white dark:bg-zinc-900 border-r border-gray-100 dark:border-zinc-800/80 sticky top-0 h-screen p-6 justify-between z-30">
+            <div>
+                <!-- Brand logo -->
+                <div class="flex items-center gap-2.5 px-2 py-4 mb-2">
+                    <span class="text-3xl">🌱</span>
                     <div>
-                        <h4 class="text-xs font-bold uppercase mb-1">Answers Onboarding</h4>
-                        <p class="text-[10px] text-gray-550 leading-relaxed">User outlines fuel types, diet models, and travel distance routines.</p>
+                        <h2 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">EcoTrace AI</h2>
+                        <span class="text-[9px] font-bold text-gray-400 dark:text-zinc-500 uppercase tracking-widest block -mt-0.5">Desktop Web Replica</span>
                     </div>
                 </div>
 
-                <!-- 2 -->
-                <div class="p-6 bg-gray-50 dark:bg-zinc-800 rounded-2xl flex flex-col justify-between items-center text-center h-52">
-                    <span class="text-2xl font-black text-forest-500">02</span>
-                    <span class="text-xl">🧠</span>
-                    <div>
-                        <h4 class="text-xs font-bold uppercase mb-1">AI Carbon Estimation</h4>
-                        <p class="text-[10px] text-gray-550 leading-relaxed">Underlying algorithms calculate baselines against emission databases.</p>
+                <!-- Green Score Board Card -->
+                <div class="p-4 rounded-3xl bg-emerald-50/40 dark:bg-zinc-950/40 border border-emerald-500/10 mb-6">
+                    <div class="flex items-center justify-between">
+                        <span id="levelTitle" class="text-xs font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-100/60 dark:bg-emerald-950/40 px-3 py-1 rounded-full">Lvl 1 - Eco Seedling</span>
                     </div>
+                    <!-- Small progress slider -->
+                    <div class="w-full bg-gray-200 dark:bg-zinc-800 h-1.5 rounded-full overflow-hidden mt-3">
+                        <div id="levelBarFill" class="bg-emerald-500 h-full w-[10%] rounded-full progress-bar-fill"></div>
+                    </div>
+                    <span id="levelNumber" class="text-[9px] font-bold text-gray-500 dark:text-zinc-400 mt-2 block tracking-wider">50 Carbon Credits</span>
                 </div>
 
-                <!-- 3 -->
-                <div class="p-6 bg-gray-50 dark:bg-zinc-800 rounded-2xl flex flex-col justify-between items-center text-center h-52">
-                    <span class="text-2xl font-black text-forest-500">03</span>
-                    <span class="text-xl">🏠</span>
-                    <div>
-                        <h4 class="text-xs font-bold uppercase mb-1">Dynamic Dashboard</h4>
-                        <p class="text-[10px] text-gray-550 leading-relaxed">View Green score ratings and relative emission comparisons visually.</p>
-                    </div>
-                </div>
-
-                <!-- 4 -->
-                <div class="p-6 bg-gray-50 dark:bg-zinc-800 rounded-2xl flex flex-col justify-between items-center text-center h-52">
-                    <span class="text-2xl font-black text-forest-500">04</span>
-                    <span class="text-xl">✍️</span>
-                    <div>
-                        <h4 class="text-xs font-bold uppercase mb-1">Track Daily Habits</h4>
-                        <p class="text-[10px] text-gray-550 leading-relaxed">Log transit choices or meat-free days as they happen.</p>
-                    </div>
-                </div>
-
-                <!-- 5 -->
-                <div class="p-6 bg-gray-50 dark:bg-zinc-800 rounded-2xl flex flex-col justify-between items-center text-center h-52">
-                    <span class="text-2xl font-black text-forest-500">05</span>
-                    <span class="text-xl">✨</span>
-                    <div>
-                        <h4 class="text-xs font-bold uppercase mb-1">AI Tip Update</h4>
-                        <p class="text-[10px] text-gray-550 leading-relaxed">The internal Gemini assistant changes recommendations based on logs.</p>
-                    </div>
-                </div>
-
-                <!-- 6 -->
-                <div class="p-6 bg-gray-50 dark:bg-zinc-800 rounded-2xl flex flex-col justify-between items-center text-center h-52">
-                    <span class="text-2xl font-black text-forest-500">06</span>
-                    <span class="text-xl">🏆</span>
-                    <div>
-                        <h4 class="text-xs font-bold uppercase mb-1">Earn Levels</h4>
-                        <p class="text-[10px] text-gray-550 leading-relaxed">Improve your Green score, complete challenge goals, and unlock rewards.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 5. Screenshots Placement Holder Cards -->
-    <section id="screenshots" class="py-20 lg:py-28 bg-gray-50 dark:bg-zinc-950/20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="max-w-3xl mx-auto text-center mb-16">
-                <span class="text-xs font-bold uppercase tracking-wider text-forest-500 font-mono">User Interface</span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-2 text-gray-900 dark:text-white">
-                    App Screens Showcase
-                </h2>
-                <div class="w-12 h-1 bg-forest-500 mx-auto rounded-full mt-4"></div>
-                <p class="text-sm text-gray-500 dark:text-zinc-400 leading-relaxed mt-6">
-                    A visual tour of EcoTrace AI's modern, clean, and intuitive user interface designed using high-contrast typography and Material Design 3 guidelines.
-                </p>
+                <!-- Nav Menu links list -->
+                <nav class="space-y-1.5">
+                    <button onclick="switchTab('dashboard')" data-tab="dashboard" class="sidebar-link w-full py-3.5 px-4 rounded-2xl text-sm font-bold transition flex items-center gap-3.5 text-left bg-primary-solid text-white">
+                        <span class="text-lg">📊</span> Home Dashboard
+                    </button>
+                    <button onclick="switchTab('simulator')" data-tab="simulator" class="sidebar-link w-full py-3.5 px-4 rounded-2xl text-sm font-bold transition flex items-center gap-3.5 text-left">
+                        <span class="text-lg">🛸</span> Scenario Simulator
+                    </button>
+                    <button onclick="switchTab('coach')" data-tab="coach" class="sidebar-link w-full py-3.5 px-4 rounded-2xl text-sm font-bold transition flex items-center gap-3.5 text-left">
+                        <span class="text-lg">💬</span> AI Coach Chat
+                    </button>
+                    <button onclick="switchTab('learning')" data-tab="learning" class="sidebar-link w-full py-3.5 px-4 rounded-2xl text-sm font-bold transition flex items-center gap-3.5 text-left">
+                        <span class="text-lg">📚</span> Learning Center
+                    </button>
+                    <button onclick="switchTab('community')" data-tab="community" class="sidebar-link w-full py-3.5 px-4 rounded-2xl text-sm font-bold transition flex items-center gap-3.5 text-left">
+                        <span class="text-lg">🏆</span> Challenges
+                    </button>
+                    <button onclick="switchTab('profile')" data-tab="profile" class="sidebar-link w-full py-3.5 px-4 rounded-2xl text-sm font-bold transition flex items-center gap-3.5 text-left">
+                        <span class="text-lg">👥</span> Profile & Settings
+                    </button>
+                </nav>
             </div>
 
-            <!-- Visual Interface showcase grid with captions -->
-            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                <!-- S1 -->
-                <div class="bg-white dark:bg-zinc-900 border border-gray-150 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-sm group">
-                    <div class="aspect-[9/16] bg-gradient-to-br from-forest-100 to-white dark:from-zinc-850 dark:to-zinc-900 p-6 flex flex-col justify-between">
-                        <span class="text-[10px] font-extrabold text-forest-500 uppercase">Screen 01</span>
-                        <div class="flex flex-col items-center text-center gap-2">
-                            <span class="text-4xl">🚪</span>
-                            <span class="text-sm font-black text-gray-900 dark:text-white">Smart Onboarding</span>
-                            <p class="text-[10px] text-gray-500 leading-normal max-w-[160px]">Input fuel usage, travel distances, and dietary patterns to build your baseline.</p>
-                        </div>
-                        <div class="w-full h-1 bg-forest-500 rounded-full"></div>
-                    </div>
-                    <div class="p-4 text-center">
-                        <h4 class="text-xs font-bold mb-0.5 text-gray-900 dark:text-white">Personal Base Setup</h4>
-                        <p class="text-[10px] text-gray-400 font-medium">Configuring carbon calculations based on dynamic input variables.</p>
-                    </div>
-                </div>
-
-                <!-- S2 -->
-                <div class="bg-white dark:bg-zinc-900 border border-gray-150 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-sm group">
-                    <div class="aspect-[9/16] bg-gradient-to-br from-forest-100 to-white dark:from-zinc-850 dark:to-zinc-900 p-6 flex flex-col justify-between">
-                        <span class="text-[10px] font-extrabold text-forest-500 uppercase">Screen 02</span>
-                        <div class="flex flex-col items-center text-center gap-2">
-                            <span class="text-4xl">🌱</span>
-                            <span class="text-sm font-black text-gray-900 dark:text-white">Eco Dashboard</span>
-                            <p class="text-[10px] text-gray-550 leading-normal max-w-[160px]">Displays current emissions, Green score progress, active challenges, and quick trackers.</p>
-                        </div>
-                        <div class="w-full h-1 bg-forest-500 rounded-full"></div>
-                    </div>
-                    <div class="p-4 text-center">
-                        <h4 class="text-xs font-bold mb-0.5 text-gray-900 dark:text-white">Carbon Command Center</h4>
-                        <p class="text-[10px] text-gray-400 font-medium">Visualizing progress with intuitive and clean custom visualizers.</p>
-                    </div>
-                </div>
-
-                <!-- S3 -->
-                <div class="bg-white dark:bg-zinc-900 border border-gray-150 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-sm group">
-                    <div class="aspect-[9/16] bg-gradient-to-br from-forest-100 to-white dark:from-zinc-850 dark:to-zinc-900 p-6 flex flex-col justify-between">
-                        <span class="text-[10px] font-extrabold text-forest-500 uppercase">Screen 03</span>
-                        <div class="flex flex-col items-center text-center gap-2">
-                            <span class="text-4xl">💬</span>
-                            <span class="text-sm font-black text-gray-900 dark:text-white">EcoCoach Support</span>
-                            <p class="text-[10px] text-gray-550 leading-normal max-w-[160px]">Ask sustainability and lifestyle optimization questions via the unified chat interface.</p>
-                        </div>
-                        <div class="w-full h-1 bg-forest-500 rounded-full"></div>
-                    </div>
-                    <div class="p-4 text-center">
-                        <h4 class="text-xs font-bold mb-0.5 text-gray-900 dark:text-white">Conversational Coach chat</h4>
-                        <p class="text-[10px] text-gray-400 font-medium">Direct live sustainability guidance with secure fallback models.</p>
-                    </div>
-                </div>
-
-                <!-- S4 -->
-                <div class="bg-white dark:bg-zinc-900 border border-gray-150 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-sm group">
-                    <div class="aspect-[9/16] bg-gradient-to-br from-forest-100 to-white dark:from-zinc-850 dark:to-zinc-900 p-6 flex flex-col justify-between">
-                        <span class="text-[10px] font-extrabold text-forest-500 uppercase">Screen 04</span>
-                        <div class="flex flex-col items-center text-center gap-2">
-                            <span class="text-4xl">🧪</span>
-                            <span class="text-sm font-black text-gray-900 dark:text-white">Behavior Lab</span>
-                            <p class="text-[10px] text-gray-550 leading-normal max-w-[160px]">Calculate emissions savings on hypothetical travel distances and appliance changes.</p>
-                        </div>
-                        <div class="w-full h-1 bg-forest-500 rounded-full"></div>
-                    </div>
-                    <div class="p-4 text-center">
-                        <h4 class="text-xs font-bold mb-0.5 text-gray-900 dark:text-white">Adjustment Sandbox</h4>
-                        <p class="text-[10px] text-gray-400 font-medium">Predict and trace footprint improvements accurately before changing your lifestyle.</p>
-                    </div>
-                </div>
+            <!-- Footer settings button -->
+            <div class="flex items-center gap-3 border-t border-gray-100 dark:border-zinc-800/60 pt-5">
+                <button onclick="toggleTheme()" class="flex-1 p-3 rounded-2xl bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 text-center transition font-bold text-xs" aria-label="Toggle dark mode">🌓 Dynamic Mode</button>
             </div>
-        </div>
-    </section>
+        </aside>
 
-    <!-- 6. Technology Stack Details & 7. Project Architecture Layout Component -->
-    <section id="tech-stack" class="py-20 lg:py-28 bg-white dark:bg-zinc-900 border-b border-gray-100 dark:border-zinc-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="max-w-3xl mx-auto text-center mb-16">
-                <span class="text-xs font-bold uppercase tracking-wider text-forest-500 font-mono">Software Overview</span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-2 text-gray-900 dark:text-white">
-                    App Architecture & Stack
-                </h2>
-                <div class="w-12 h-1 bg-forest-500 mx-auto rounded-full mt-4"></div>
-                <p class="text-sm text-gray-500 dark:text-zinc-400 leading-relaxed mt-6">
-                    Meticulously designed architecture prioritizing data decoupling, clean abstractions, and offline durability.
-                </p>
-            </div>
-
-            <div class="grid lg:grid-cols-2 gap-12 items-center">
-                <!-- Stack Details -->
-                <div class="space-y-6">
-                    <h3 class="text-xl font-extrabold text-gray-900 dark:text-white">Development Ingredients</h3>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-850">
-                            <span class="text-sm font-bold text-gray-900 dark:text-white block">Kotlin & Compose</span>
-                            <span class="text-[11px] text-gray-500 dark:text-zinc-400">100% Type-safe declarative UI structures.</span>
-                        </div>
-                        <div class="p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-850">
-                            <span class="text-sm font-bold text-gray-900 dark:text-white block">Room Persistence</span>
-                            <span class="text-[11px] text-gray-500 dark:text-zinc-400">SQLite data mapping for offline profiling and log caches.</span>
-                        </div>
-                        <div class="p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-850">
-                            <span class="text-sm font-bold text-gray-900 dark:text-white block">Google Gemini 3.5</span>
-                            <span class="text-[11px] text-gray-500 dark:text-zinc-400">Secured direct REST calls for adaptive conversational tracking tips.</span>
-                        </div>
-                        <div class="p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-850">
-                            <span class="text-sm font-bold text-gray-900 dark:text-white block">Gradle Properties</span>
-                            <span class="text-[11px] text-gray-500 dark:text-zinc-400">Secrets API configuration to protect keys from public commits.</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 7. Graphical Interactive Flow Diagram -->
-                <div class="p-8 bg-gray-50 dark:bg-zinc-800/85 rounded-[32px] border border-gray-100 dark:border-zinc-700 shadow-md">
-                    <h3 class="text-base font-extrabold text-gray-900 dark:text-white mb-6 uppercase text-center tracking-wider">
-                        Architectural Flow Data Diagram
-                    </h3>
-
-                    <div class="space-y-4">
-                        <!-- Step A -->
-                        <div class="p-4 bg-white dark:bg-zinc-900 rounded-2xl border border-gray-150 dark:border-zinc-800 flex justify-between items-center text-xs">
-                            <div class="flex items-center gap-3">
-                                <span class="text-lg">🚪</span>
-                                <div>
-                                    <span class="font-bold block text-gray-900 dark:text-white">Inputs Screen</span>
-                                    <span class="text-[10px] text-gray-500">Collects home energy & travel distances</span>
-                                </div>
-                            </div>
-                            <span class="text-forest-500 font-extrabold">▶️ BASELINE</span>
-                        </div>
-
-                        <!-- Step B -->
-                        <div class="p-4 bg-white dark:bg-zinc-900 rounded-2xl border border-gray-150 dark:border-zinc-800 flex justify-between items-center text-xs">
-                            <div class="flex items-center gap-3">
-                                <span class="text-lg">🎛️</span>
-                                <div>
-                                    <span class="font-bold block text-gray-900 dark:text-white">EcoViewModel Core</span>
-                                    <span class="text-[10px] text-gray-550">Centralizes calculation engines & persistence triggers</span>
-                                </div>
-                            </div>
-                            <span class="text-forest-500 font-extrabold">▶️ STATE STATE</span>
-                        </div>
-
-                        <!-- Step C -->
-                        <div class="p-4 bg-[#386B1D]/10 dark:bg-[#386B1D]/20 rounded-2xl border border-[#386B1D]/30 flex justify-between items-center text-xs">
-                            <div class="flex items-center gap-3">
-                                <span class="text-lg">🤖</span>
-                                <div>
-                                    <span class="font-bold block text-[#386B1D]">Gemini API Secure REST</span>
-                                    <span class="text-[10px] text-[#4f7f32] dark:text-zinc-400">Evaluates habit changes and structures feedback data</span>
-                                </div>
-                            </div>
-                            <span class="font-extrabold text-[#386B1D]">▶️ RECOMMENDATION</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 8. GitHub Repository Setup Guide -->
-    <section id="setup" class="py-20 lg:py-28 bg-gray-50 dark:bg-zinc-950/25">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="max-w-3xl mx-auto text-center mb-16">
-                <span class="text-xs font-bold uppercase tracking-wider text-forest-500 font-mono">Quick Deployment</span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-2 text-gray-900 dark:text-white">
-                    Setup & Environment Guide
-                </h2>
-                <div class="w-12 h-1 bg-forest-500 mx-auto rounded-full mt-4"></div>
-                <p class="text-sm text-gray-500 dark:text-zinc-400 leading-relaxed mt-6">
-                    Easily clone the open-source repository and customize variables locally.
-                </p>
-            </div>
-
-            <div class="max-w-3xl mx-auto bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-[32px] p-6 sm:p-10 shadow-lg space-y-8">
-                <!-- Instruction 1 -->
-                <div>
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                        <span class="text-sm bg-forest-100 dark:bg-forest-950/80 text-forest-500 px-3 py-1 rounded-full font-mono font-black">1</span>
-                        Clone The Codebase
-                    </h3>
-                    <div class="bg-gray-50 dark:bg-zinc-950 p-4 rounded-2xl border border-gray-100 dark:border-zinc-855 font-mono text-[11px] h-12 flex items-center justify-between text-[#3f6f26] dark:text-emerald-400 overflow-x-auto">
-                        <span>git clone https://github.com/errollajayendra/ecotrace-ai.git</span>
-                    </div>
-                </div>
-
-                <!-- Instruction 2 -->
-                <div>
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                        <span class="text-sm bg-forest-100 dark:bg-forest-950/80 text-forest-500 px-3 py-1 rounded-full font-mono font-black">2</span>
-                        Configure Local Private Properties
-                    </h3>
-                    <p class="text-xs text-gray-500 dark:text-zinc-400 mb-3 leading-relaxed">
-                        Securely manage properties in `.env` sheets locally. The variables automatically compile to protect keys from committing to public history.
-                    </p>
-                    <p class="text-[10px] font-bold text-gray-400 tracking-wider uppercase mb-1">Create root `.env` values:</p>
-                    <div class="bg-gray-50 dark:bg-zinc-950 p-4 rounded-xl border border-gray-100 dark:border-zinc-850 font-mono text-xs text-[#2a5617] dark:text-emerald-400">
-                        GEMINI_API_KEY=AIzaSy...yourLiveKeyHere...
-                    </div>
-                </div>
-
-                <!-- Instruction 3 -->
-                <div>
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                        <span class="text-sm bg-forest-100 dark:bg-forest-950/80 text-forest-500 px-3 py-1 rounded-full font-mono font-black">3</span>
-                        Build Standalone APK File
-                    </h3>
-                    <p class="text-xs text-gray-500 dark:text-zinc-400 mb-3 leading-relaxed">
-                        To compile, compile easily by invoking native gradle setups on terminal window:
-                    </p>
-                    <div class="bg-gray-50 dark:bg-zinc-950 p-4 rounded-xl border border-gray-100 dark:border-zinc-850 font-mono text-xs text-[#466b2e] dark:text-emerald-400">
-                        gradle :app:assembleDebug
-                    </div>
-                    <span class="text-[10px] text-gray-400 italic block mt-1">Saves output in app/build/outputs/apk/debug/app-debug.apk</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 9. Future Roadmap & 10. Contributing Section -->
-    <section id="roadmap" class="py-20 bg-white dark:bg-zinc-900 border-b border-gray-100 dark:border-zinc-820">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid lg:grid-cols-2 gap-12 items-start">
-                
-                <!-- 9. Future Roadmap -->
-                <div class="space-y-6">
-                    <span class="text-xs font-bold uppercase tracking-wider text-forest-500 font-mono">The Vision</span>
-                    <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white">Future Roadmap</h2>
-                    <div class="w-10 h-1 bg-forest-500 rounded-full"></div>
-                    
-                    <div class="space-y-4">
-                        <div class="p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-850 flex gap-4">
-                            <span class="text-xl">⌚</span>
-                            <div>
-                                <h4 class="text-xs font-bold text-gray-900 dark:text-white">Wearable Integration</h4>
-                                <p class="text-[10px] text-gray-400">Track distance data and outdoor workouts directly from smartwatches.</p>
-                            </div>
-                        </div>
-
-                        <div class="p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-850 flex gap-4">
-                            <span class="text-xl">🏠</span>
-                            <div>
-                                <h4 class="text-xs font-bold text-gray-900 dark:text-white">Smart-Home Integrations</h4>
-                                <p class="text-[10px] text-gray-400">Read smart electricity metrics, fuel levels, and solar array generation details directly.</p>
-                            </div>
-                        </div>
-
-                        <div class="p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-850 flex gap-4">
-                            <span class="text-xl">📷</span>
-                            <div>
-                                <h4 class="text-xs font-bold text-gray-900 dark:text-white">OCR Bill Scanning</h4>
-                                <p class="text-[10px] text-gray-400">Scan utility invoices and carbon slips automatically using optical characters parsing.</p>
-                            </div>
-                        </div>
-
-                        <div class="p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-850 flex gap-4">
-                            <span class="text-xl">🌱</span>
-                            <div>
-                                <h4 class="text-xs font-bold text-gray-900 dark:text-white">Carbon Offset Exchange</h4>
-                                <p class="text-[10px] text-gray-400">Support validated tree seeding programs directly inside the application interface.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 10. Contributing Section -->
-                <div class="space-y-6">
-                    <span class="text-xs font-bold uppercase tracking-wider text-forest-500 font-mono">Join the Effort</span>
-                    <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white">Open Source Collaboration</h2>
-                    <div class="w-10 h-1 bg-forest-500 rounded-full"></div>
-                    
-                    <div class="p-6 bg-gray-50 dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-850 space-y-4">
-                        <p class="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">
-                            We support open-source contributions. If you'd like to extend calculator utilities, suggest UI adjustments, or translate localized languages, submit issues and PR branches easily on our active repository lists.
-                        </p>
-                        <p class="text-xs text-gray-500 dark:text-zinc-400 leading-relaxed">
-                            Check out standard instructions inside structural `CONTRIBUTING.md` sheets to format branches correctly before generating requests.
-                        </p>
-                        <div class="pt-4 flex gap-4">
-                            <a href="https://github.com/errollajayendra" target="_blank" class="px-5 py-3 rounded-xl bg-forest-500 hover:bg-forest-600 text-white font-bold text-xs transition">
-                                📬 Open Issue ticket
-                            </a>
-                            <a href="https://github.com/errollajayendra" target="_blank" class="px-5 py-3 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-200 font-bold text-xs transition">
-                                ✨ Submit New PR Branch
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- 11. Footer Section -->
-    <footer class="bg-gray-100 dark:bg-zinc-950 py-12 text-xs border-t border-gray-200 dark:border-zinc-850">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
-                <!-- Brand logo footer representation -->
+        <!-- 2. Header and content scroll frame -->
+        <main class="flex-1 overflow-y-auto pb-28 md:pb-12 min-h-screen">
+            
+            <!-- Mobile Navigation topbar -->
+            <header class="md:hidden sticky top-0 bg-white/95 dark:bg-zinc-900/95 border-b border-gray-100 dark:border-zinc-800 px-4 py-3 flex items-center justify-between z-30 backdrop-blur-md">
                 <div class="flex items-center gap-2">
-                    <span>🌱</span>
-                    <span class="font-extrabold text-sm text-gray-900 dark:text-white">EcoTrace AI</span>
+                    <span class="text-2xl">🌱</span>
+                    <h2 class="text-base font-extrabold tracking-tight">EcoTrace AI</h2>
+                </div>
+                <button onclick="toggleTheme()" class="p-2.5 rounded-2xl bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 transition">🌓</button>
+            </header>
+
+            <!-- Main Dynamic Container -->
+            <div class="max-w-5xl mx-auto p-4 sm:p-6 md:p-8 space-y-6">
+
+                <!-- TAB SCREEN 1: HOME DASHBOARD -->
+                <div id="screen_dashboard" class="nav-tab-screen space-y-6">
+                    
+                    <!-- Dashboard cards dashboard -->
+                    <div class="bg-gradient-to-r from-emerald-600 to-teal-500 rounded-[32px] text-white p-6 md:p-8 relative overflow-hidden shadow-xl shadow-emerald-500/10">
+                        <div class="relative z-10 space-y-4">
+                            <span class="px-3.5 py-1.5 rounded-full bg-white/20 text-xs font-extrabold tracking-wider uppercase">Active Footprint Index</span>
+                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                <div>
+                                    <h3 class="text-5xl font-black tracking-tight" id="todayEmissionsVal">12.4</h3>
+                                    <span class="text-xs font-bold text-white/80 block mt-1">Estimated daily kg CO₂e output based on today's tracking checklist</span>
+                                </div>
+                                <div class="p-4 rounded-3xl bg-white/10 backdrop-blur-md border border-white/10 text-center flex flex-col justify-center min-w-[150px]">
+                                    <span class="text-xl font-extrabold" id="dashSavingsPercent">32% cleaner</span>
+                                    <span class="text-[9px] uppercase font-bold tracking-widest text-white/75 mt-0.5">VS typ. global avg (16.0kg)</span>
+                                </div>
+                            </div>
+                            <div class="border-t border-white/10 pt-4 mt-2">
+                                <span class="text-[11px] font-bold block mb-1 text-white/95" id="carbonGoalText">Green Rank Progress: 41% toward True Neutral</span>
+                                <div class="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                                    <div id="carbonGoalBarFill" class="bg-white h-full w-[41%] rounded-full progress-bar-fill"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Background glow accents -->
+                        <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-teal-400 rounded-full blur-3xl opacity-30"></div>
+                    </div>
+
+                    <!-- Daily track Quick Actions layout -->
+                    <div class="space-y-3.5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-xl font-extrabold tracking-tight">Daily Habit Tracking Checklist</h3>
+                                <p class="text-xs text-gray-500 dark:text-zinc-400">Log adjustments or extra events on-the-fly to recalculate outputs.</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5" id="tracklistGrid">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Analytics visual double cards (Trend chart vs Categories distribution) -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-5 pt-4">
+                        <div class="md:col-span-4 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800/80 p-5 rounded-[32px] flex flex-col justify-between h-[350px]">
+                            <h4 class="font-extrabold text-sm tracking-tight text-gray-900 dark:text-gray-100">Category Distribution</h4>
+                            <div class="relative flex-1 h-[220px] flex items-center justify-center mt-3">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="md:col-span-8 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800/80 p-5 rounded-[32px] flex flex-col justify-between h-[350px]">
+                            <h4 class="font-extrabold text-sm tracking-tight text-gray-900 dark:text-gray-100">7-Day Emissions History</h4>
+                            <div class="relative flex-1 h-[220px] mt-3">
+                                <canvas id="historyChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
-                <!-- Copyright, License and Credits -->
-                <div class="text-center sm:text-right space-y-1">
-                    <p class="text-gray-400">© 2026 EcoTrace AI. Released under the open-source MIT License.</p>
-                    <p class="text-[10px] text-gray-500">Meticulously engineered for global sustainability monitoring programs.</p>
+                <!-- TAB SCREEN 2: SCENARIO SIMULATOR -->
+                <div id="screen_simulator" class="nav-tab-screen space-y-6 hidden">
+                    <div class="space-y-1">
+                        <h2 class="text-2xl font-black tracking-tight">Active Scenario Simulator</h2>
+                        <p class="text-sm text-gray-500 dark:text-zinc-400">Toggle sliders to design a projected custom lifestyle profile. Contrast differences directly before implementing them!</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                        <!-- Left Sliders Box -->
+                        <div class="md:col-span-7 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800/80 p-6 rounded-[32px] space-y-6 shadow-sm">
+                            <!-- Slider 1: Commute Cut -->
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center text-sm font-bold">
+                                    <label class="flex items-center gap-1.5 font-extrabold text-[#386B1D] dark:text-[#9cd67e]">🚗 Reduce Driving Distance</label>
+                                    <span class="text-xs bg-gray-50 dark:bg-zinc-800 px-2 py-0.5 rounded-lg text-emerald-600">Slider Adjusted</span>
+                                </div>
+                                <input type="range" id="sim_driving_slider" min="0" max="100" value="0" class="w-full accent-emerald-500 h-2 bg-gray-100 dark:bg-zinc-800 rounded-full appearance-none cursor-pointer">
+                                <span class="text-[10px] text-gray-400 block leading-tight">Slides from 0% (drive standard commute) up to 100% reduction (zero car commuting, switch entirely to cycling/public options).</span>
+                            </div>
+
+                            <!-- Slider 2: Diet Choice -->
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center text-sm font-bold">
+                                    <label class="flex items-center gap-1.5 font-extrabold text-amber-500">🥗 Switch Diet Profiles</label>
+                                    <span class="text-xs bg-gray-50 dark:bg-zinc-800 px-2 py-0.5 rounded-lg text-amber-500">Step Level</span>
+                                </div>
+                                <input type="range" id="sim_diet_slider" min="0" max="100" value="50" class="w-full accent-amber-500 h-2 bg-gray-100 dark:bg-zinc-800 rounded-full appearance-none cursor-pointer">
+                                <div class="flex justify-between text-[9px] text-gray-400 font-extrabold uppercase px-1">
+                                    <span>Fully Vegan</span>
+                                    <span>Vegetarian</span>
+                                    <span>Mixed</span>
+                                    <span>Meat Heavy</span>
+                                </div>
+                            </div>
+
+                            <!-- Slider 3: Flights Toggle -->
+                            <div class="p-4 rounded-2xl bg-gray-50 dark:bg-zinc-800/40 border border-gray-100 dark:border-zinc-800/80 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl">✈️</span>
+                                    <div>
+                                        <h4 class="text-xs font-bold text-gray-900 dark:text-gray-100">Commit to Flight Free Future</h4>
+                                        <p class="text-[10px] text-gray-400 leading-tight">Completely zero aviation flight footprint next year.</p>
+                                    </div>
+                                </div>
+                                <input type="checkbox" id="sim_flights_slider" class="w-5 h-5 accent-emerald-500 cursor-pointer">
+                            </div>
+
+                            <!-- Slider 4: Composting & Organic separation -->
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center text-sm font-bold">
+                                    <label class="flex items-center gap-1.5 font-extrabold text-indigo-500">♻️ Food Composting Impact</label>
+                                    <span class="text-xs bg-gray-50 dark:bg-zinc-800 px-2 py-0.5 rounded-lg text-indigo-500">Percentage</span>
+                                </div>
+                                <input type="range" id="sim_waste_slider" min="0" max="100" value="0" class="w-full accent-indigo-500 h-2 bg-gray-100 dark:bg-zinc-800 rounded-full appearance-none cursor-pointer">
+                                <span class="text-[10px] text-gray-400 block leading-tight">Increments of separate organics Composting. Halts anaerobic dumpyard decaying.</span>
+                            </div>
+                        </div>
+
+                        <!-- Right projection diagram visualizer -->
+                        <div class="md:col-span-5 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800/80 p-6 rounded-[32px] space-y-6 shadow-sm flex flex-col justify-between h-[450px]">
+                            <h4 class="font-extrabold text-sm tracking-tight text-gray-900 dark:text-gray-100">Simulation Projections (CO₂e/yr)</h4>
+                            
+                            <!-- Side-by-Side vertical bar diagram -->
+                            <div class="flex items-end justify-center gap-12 flex-1 h-[220px]">
+                                <div class="flex flex-col items-center gap-2 h-full justify-end">
+                                    <div id="sim_bar_before" class="w-12 bg-gray-300 dark:bg-zinc-800 rounded-t-xl transition-all duration-300 relative" style="height: 100%;">
+                                        <span id="sim_current_annual" class="absolute -top-7 left-1/2 -translate-x-1/2 px-1 text-[10px] font-extrabold text-gray-500 whitespace-nowrap">4.5 tons</span>
+                                    </div>
+                                    <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Before</span>
+                                </div>
+                                <div class="flex flex-col items-center gap-2 h-full justify-end">
+                                    <div id="sim_bar_after" class="w-12 bg-emerald-500 rounded-t-xl transition-all duration-300 relative" style="height: 60%;">
+                                        <span id="sim_projected_profile" class="absolute -top-7 left-1/2 -translate-x-1/2 px-1 text-[10px] font-extrabold text-emerald-500 whitespace-nowrap">2.7 tons</span>
+                                    </div>
+                                    <span class="text-[9px] font-bold text-emerald-500 uppercase tracking-wider">Projected</span>
+                                </div>
+                            </div>
+
+                            <!-- Savings and trees description card -->
+                            <div class="p-4 rounded-3xl bg-emerald-50/50 dark:bg-emerald-950/20 text-center">
+                                <span class="text-sm font-extrabold text-emerald-700 dark:text-emerald-400 block" id="sim_saved_indicator">1.8 Metric Tons Saved!</span>
+                                <p class="text-[10px] text-gray-500 dark:text-zinc-400 mt-1 leading-normal" id="sim_trees_offset">Planted trees absorption equivalent index info.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- TAB SCREEN 3: AI COACH -->
+                <div id="screen_coach" class="nav-tab-screen space-y-6 hidden">
+                    <div class="space-y-1">
+                        <h2 class="text-2xl font-black tracking-tight">AI Sustainability Coach 🩺</h2>
+                        <p class="text-sm text-gray-500 dark:text-zinc-400">Interactive carbon mentor. Chat with a detailed local assistant trained on your metrics, or configure custom client-side API Keys inside Settings to activate live Gemini models!</p>
+                    </div>
+
+                    <div class="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800/80 rounded-[32px] overflow-hidden flex flex-col h-[520px] shadow-sm relative glow-green">
+                        <!-- Chat Conversation history panel -->
+                        <div class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4" id="coachChatHistory">
+                            <!-- Populated dynamically through state -->
+                        </div>
+
+                        <!-- Typing Loading Dots Indicator -->
+                        <div id="coachTypingIndicator" class="hidden px-6 py-3 flex items-center gap-2 text-xs text-gray-400 w-fit ml-4 mb-2 bg-gray-50 dark:bg-zinc-800 rounded-full animate-pulse transition">
+                            <span>Coach is scanning your habits</span>
+                            <div class="flex gap-1">
+                                <span class="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot"></span>
+                                <span class="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot font-bold"></span>
+                                <span class="w-1.5 h-1.5 bg-gray-400 rounded-full typing-dot"></span>
+                            </div>
+                        </div>
+
+                        <!-- Prompt chips shortcuts row -->
+                        <div class="p-3 bg-gray-50/60 dark:bg-zinc-900/60 border-t border-gray-100 dark:border-zinc-800/80 flex gap-2 overflow-x-auto" id="coachQuickPrompts">
+                            <!-- Predefined prompt chips items -->
+                        </div>
+
+                        <!-- Bottom input task row -->
+                        <div class="p-4 bg-white dark:bg-zinc-900 border-t border-gray-100 dark:border-zinc-800/80 flex gap-2.5 items-center">
+                            <input type="text" id="coachChatInput" placeholder="Ask your carbon coach anything (e.g. recommend meat alternatives)" class="flex-1 p-4 rounded-2xl bg-gray-50 dark:bg-zinc-800 border-none outline-none font-semibold text-xs text-gray-900 dark:text-white" onkeydown="if(event.key === 'Enter') submitCoachQuestion()">
+                            <button onclick="submitCoachQuestion()" class="p-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs transition min-w-[80px]">Ask Coach</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB SCREEN 4: LEARNING CENTER -->
+                <div id="screen_learning" class="nav-tab-screen space-y-6 hidden">
+                    <div class="space-y-1">
+                        <h2 class="text-2xl font-black tracking-tight">Eco Learning Center</h2>
+                        <p class="text-sm text-gray-500 dark:text-zinc-400">Brief, clean educational breakdown cards detailing standard carbon equivalents of individual habits. Avoid long boring guidelines.</p>
+                    </div>
+
+                    <!-- Category filter chips row and Search bar -->
+                    <div class="flex flex-col md:flex-row gap-3 items-center justify-between pt-2">
+                        <div class="flex gap-1.5 overflow-x-auto max-w-full pb-1">
+                            <button onclick="selectLcFilter('All')" class="lc-filter-btn px-4 py-2 text-xs font-bold rounded-full bg-primary-solid text-white transition">All</button>
+                            <button onclick="selectLcFilter('Foundations')" class="lc-filter-btn px-4 py-2 text-xs font-bold rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 transition">Foundations</button>
+                            <button onclick="selectLcFilter('Transport')" class="lc-filter-btn px-4 py-2 text-xs font-bold rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 transition">Transport</button>
+                            <button onclick="selectLcFilter('Diet')" class="lc-filter-btn px-4 py-2 text-xs font-bold rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 transition">Diet</button>
+                            <button onclick="selectLcFilter('Energy')" class="lc-filter-btn px-4 py-2 text-xs font-bold rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 transition">Energy</button>
+                            <button onclick="selectLcFilter('Shopping')" class="lc-filter-btn px-4 py-2 text-xs font-bold rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 transition">Shopping</button>
+                            <button onclick="selectLcFilter('Waste')" class="lc-filter-btn px-4 py-2 text-xs font-bold rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 transition">Waste</button>
+                        </div>
+                        <input type="text" id="lcSearchInput" placeholder="🔍 Search topic..." class="w-full md:w-64 px-4 py-2.5 rounded-full bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 outline-none text-xs focus:ring-1 focus:ring-emerald-500 font-semibold" oninput="renderLessons()">
+                    </div>
+
+                    <!-- Educational cards list grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="lessonsGrid">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+
+                <!-- TAB SCREEN 5: CHALLENGES & COMMUNITY -->
+                <div id="screen_community" class="nav-tab-screen space-y-6 hidden">
+                    <div class="space-y-1">
+                        <h2 class="text-2xl font-black tracking-tight">Eco Challenges & Community</h2>
+                        <p class="text-sm text-gray-500 dark:text-zinc-400">Join real lifestyle challenges to unlock badge milestones. Compete on the leaderboard rankings!</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start pt-2">
+                        <!-- Left Active Challenges columns -->
+                        <div class="md:col-span-7 space-y-4" id="challengesContainer">
+                            <!-- Challenges populated dynamically -->
+                        </div>
+
+                        <!-- Right Leaderboard comparison -->
+                        <div class="md:col-span-5 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800/80 p-5 rounded-[32px] space-y-4 shadow-sm">
+                            <div class="border-b border-gray-50 dark:border-zinc-800/80 pb-3">
+                                <h4 class="font-extrabold text-sm tracking-tight text-gray-900 dark:text-gray-100">Global Leaderboard (This Week)</h4>
+                                <span class="text-[10px] text-gray-400">Other community nodes are simulated. Jump ranks by earning credits!</span>
+                            </div>
+                            <!-- Player rankings list -->
+                            <div class="space-y-1.5" id="leaderboardList">
+                                <!-- Leaderboard entries loaded dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB SCREEN 6: PROFILE, GOALS, BADGES, SETTINGS -->
+                <div id="screen_profile" class="nav-tab-screen space-y-6 hidden">
+                    <div class="space-y-1">
+                        <h2 class="text-2xl font-black tracking-tight">Profile & Carbon Settings</h2>
+                        <p class="text-sm text-gray-500 dark:text-zinc-400">Review detailed breakdown analysis, check earned decorative badges, or configure client integrations.</p>
+                    </div>
+
+                    <!-- Current profile items stats panel -->
+                    <div class="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800/80 p-6 rounded-[32px] space-y-4 shadow-sm">
+                        <h4 class="font-extrabold text-sm tracking-tight border-b border-gray-50 dark:border-zinc-800/80 pb-3">Carbon Breakdown Shares Index</h4>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3.5" id="profileDetailGrid">
+                            <!-- Stats elements loaded dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Achievements & badges container grid -->
+                    <div class="space-y-3">
+                        <h4 class="font-extrabold text-base tracking-tight text-gray-950 dark:text-white">Milestone Unlocked Badges</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="badgesGrid">
+                            <!-- Badges items loaded dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Settings, reset and client integration widgets -->
+                    <div class="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800/80 p-6 rounded-[32px] space-y-5 shadow-sm">
+                        <h4 class="font-extrabold text-sm border-b border-gray-50 dark:border-zinc-800/80 pb-3">Integrations & System Settings</h4>
+                        
+                        <!-- Client Gemini Local Key -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-extrabold uppercase text-gray-400">Client-Side Gemini AI API Key (Saved locally inside browsers):</label>
+                            <input type="password" id="settings_gemini_key" placeholder="AI Studio Key (AI Studio Secrets Panel style - AI Studio uses platform proxy)" class="w-full p-4 rounded-xl bg-gray-50 dark:bg-zinc-800 focus:ring-2 focus:ring-emerald-500 outline-none text-xs text-gray-900 dark:text-white font-bold h-12" onchange="saveSettings()">
+                            <p class="text-[9px] text-gray-400 leading-normal">If a valid API key is entered, your **AI Sustainability Coach chatbot** will directly query live Gemini 1.5-flash models over secured browser REST headers. Leave it blank to run realistic mock ecological simulation chats.</p>
+                        </div>
+
+                        <!-- System Actions Buttons -->
+                        <div class="flex flex-col sm:flex-row gap-2.5 pt-2 border-t border-gray-50 dark:border-zinc-800/80">
+                            <button onclick="saveSettings()" class="px-5 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 font-extrabold text-xs text-white transition">Save Configuration</button>
+                            <button onclick="resetAllAppData()" class="px-5 py-3 rounded-2xl bg-red-50 dark:bg-red-950/20 hover:bg-red-100 text-red-600 font-extrabold text-xs transition border border-transparent hover:border-red-300">Reset Application data & Onboarding</button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-        </div>
-    </footer>
+        </main>
 
-    <!-- Visual Interactive sandbox calculations runtime script handler -->
-    <script>
-        const distInput = document.getElementById('-sandbox-dist');
-        const distLabel = document.getElementById('-sandbox-dist-label');
-        const modeInput = document.getElementById('-sandbox-mode');
-        const cResult = document.getElementById('-sandbox-result-co2');
-        const pResult = document.getElementById('-sandbox-result-phones');
+        <!-- 3. Mobile Navigation Bottom Bar tabs -->
+        <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-zinc-900/95 border-t border-gray-100 dark:border-zinc-800/80 flex justify-around items-center h-16 backdrop-blur-md px-2">
+            <button onclick="switchTab('dashboard')" data-tab="dashboard" class="bottombar-link flex flex-col items-center justify-center flex-1 text-center py-1">
+                <span class="text-xl">📊</span>
+                <span class="text-[9px] font-extrabold mt-0.5 whitespace-nowrap">Home</span>
+            </button>
+            <button onclick="switchTab('simulator')" data-tab="simulator" class="bottombar-link flex flex-col items-center justify-center flex-1 text-center py-1">
+                <span class="text-xl">🛸</span>
+                <span class="text-[9px] font-extrabold mt-0.5 whitespace-nowrap">Simulator</span>
+            </button>
+            <button onclick="switchTab('coach')" data-tab="coach" class="bottombar-link flex flex-col items-center justify-center flex-1 text-center py-1 flex-shrink-0">
+                <span class="text-xl">💬</span>
+                <span class="text-[9px] font-extrabold mt-0.5 whitespace-nowrap">AI Coach</span>
+            </button>
+            <button onclick="switchTab('learning')" data-tab="learning" class="bottombar-link flex flex-col items-center justify-center flex-1 text-center py-1">
+                <span class="text-xl">📚</span>
+                <span class="text-[9px] font-extrabold mt-0.5 whitespace-nowrap">Learn</span>
+            </button>
+            <button onclick="switchTab('community')" data-tab="community" class="bottombar-link flex flex-col items-center justify-center flex-1 text-center py-1">
+                <span class="text-xl">🏆</span>
+                <span class="text-[9px] font-extrabold mt-0.5 whitespace-nowrap">Social</span>
+            </button>
+            <button onclick="switchTab('profile')" data-tab="profile" class="bottombar-link flex flex-col items-center justify-center flex-1 text-center py-1">
+                <span class="text-xl">👤</span>
+                <span class="text-[9px] font-extrabold mt-0.5 whitespace-nowrap">Profile</span>
+            </button>
+        </nav>
 
-        function recompute() {
-            const distanceValue = parseFloat(distInput.value) || 0;
-            const chosenCoeff = parseFloat(modeInput.value) || 0;
-            distLabel.innerText = distanceValue + ' KM';
+    </div>
 
-            // Gasoline car coeff estimate roughly 0.22 kg/km
-            const normalCarCoeff = 0.22;
-            const fuelDiff = Math.max(0, normalCarCoeff - chosenCoeff);
-            const avoidedKg = distanceValue * fuelDiff;
-            cResult.innerText = avoidedKg.toFixed(1) + ' kg CO₂e';
-
-            // 1kg CO2 Avoided ~ 121.7 smartphone charges
-            const smartphones = Math.round(avoidedKg * 121.7);
-            pResult.innerText = '~' + smartphones.toLocaleString() + ' Phones';
-        }
-
-        distInput.addEventListener('input', recompute);
-        modeInput.addEventListener('change', recompute);
-        recompute();
-
-        // Dark/light toggle script setup
-        const themeBtn = document.getElementById('theme-btn');
-        themeBtn.addEventListener('click', () => {
-            document.documentElement.classList.toggle('dark');
-        });
-    </script>
+    <!-- Core App Logic bindings link -->
+    <script src="script.js"></script>
 </body>
 </html>
