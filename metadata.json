@@ -1,0 +1,6 @@
+{
+  "name": "EcoTrace AI",
+  "description": "Understand, track, analyze, and reduce your carbon footprint with EcoTrace AI. Built with simple local analytics, interactive scenario simulations, progress tracking, and an personal AI Sustainability Coach chat assistant.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
