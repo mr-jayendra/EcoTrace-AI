@@ -55,7 +55,7 @@ class EcoRepository(private val db: AppDatabase) {
         )
 
         // Preseed initial challenges and badges
-        seedDefaultChallenges()
+        seedInitialData()
     }
 
     /**
@@ -100,9 +100,26 @@ class EcoRepository(private val db: AppDatabase) {
     }
 
     /**
-     * Seed first-launch challenges if empty
+     * Seed first-launch database entries (Profile, Coach Chat Greeting, Challenges)
      */
-    suspend fun seedDefaultChallenges() {
+    suspend fun seedInitialData() {
+        // 1. Seed default user profile if none exists so the app never gets stuck on the loading spinner
+        if (db.userProfileDao().getProfile() == null) {
+            db.userProfileDao().saveProfile(UserProfileEntity())
+        }
+
+        // 2. Seed initial supportive coach introduction bubble
+        val currentChat = db.chatHistoryDao().getChatHistoryFlow().firstOrNull()
+        if (currentChat.isNullOrEmpty()) {
+            db.chatHistoryDao().insertMessage(
+                ChatMessageEntity(
+                    sender = "ai",
+                    messageText = "Hello! I am your EcoTrace AI Coach. Ask me anything about tracking your emissions, reducing energy consumption, completing weekly challenges, or improving your standard Green Score!"
+                )
+            )
+        }
+
+        // 3. Seed default challenges
         val current = db.challengeDao().getChallengesFlow().firstOrNull()
         if (current.isNullOrEmpty()) {
             val list = listOf(

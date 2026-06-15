@@ -33,7 +33,7 @@ object GeminiClient {
         systemInstruction: String = "You are an expert sustainability bot helping non-technical users."
     ): String = withContext(Dispatchers.IO) {
         val apiKey = BuildConfig.GEMINI_API_KEY
-        if (apiKey.isEmpty() || apiKey == "MY_GEMINI_API_KEY") {
+        if (apiKey.isEmpty() || apiKey == "MY_GEMINI_API_KEY" || apiKey == "YOUR_API_KEY_HERE") {
             Log.e(TAG, "Gemini API key is not configured or is the default placeholder!")
             return@withContext getLocalFallbackResponse(prompt)
         }

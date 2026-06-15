@@ -1,18 +1,42 @@
-*.iml
-.gradle
-.kotlin
+# Built variants and outputs
+/build/
+app/build/
+.build-outputs/
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# Gradle files
+.gradle/
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
 local.properties
+
+# Secrets
 .env
-debug.keystore
+.env.production
+.env.local
+
+# IDEs and Editors
+.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+.navigation/
+captures/
+.externalNativeBuild/
+.cxx/
+as_view_state.xml
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+/tmp/
+temp/
+

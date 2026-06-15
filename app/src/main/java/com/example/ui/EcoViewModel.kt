@@ -72,7 +72,7 @@ class EcoViewModel(application: Application) : AndroidViewModel(application) {
     // Ensure database contains core parameters
     init {
         viewModelScope.launch {
-            repository.seedDefaultChallenges()
+            repository.seedInitialData()
             checkIfTrackedToday()
             refreshHomeRecommendation()
         }
@@ -109,7 +109,7 @@ class EcoViewModel(application: Application) : AndroidViewModel(application) {
             
             var interpretation = ""
             // Call Gemini to explain the user's specific daily additions/subtractions in simple friendly terms if a key exists
-            if (BuildConfig.GEMINI_API_KEY.isNotEmpty() && BuildConfig.GEMINI_API_KEY != "MY_GEMINI_API_KEY") {
+            if (BuildConfig.GEMINI_API_KEY.isNotEmpty() && BuildConfig.GEMINI_API_KEY != "MY_GEMINI_API_KEY" && BuildConfig.GEMINI_API_KEY != "YOUR_API_KEY_HERE") {
                 val actList = if (selectedDailyChanges.isEmpty()) "Standard Lifestyle Baseline" else selectedDailyChanges.joinToString(", ")
                 val prompt = "Based on their environmental profile baseline ($promptContext), the user reported these daily activity changes: [$actList]. Provide a 1-sentence supportive, ultra-friendly carbon evaluation of how this affects their footprint today. Keep it motivating."
                 interpretation = GeminiClient.generateResponse(prompt, systemInstruction = "You are an encouraging carbon footprint analyzer.")
