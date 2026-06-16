@@ -1,34 +1,76 @@
-# EcoTrace AI 🌿
+# EcoTrace AI 🌿 - Premium Sustainability & Carbon Tracking Platform
 
-EcoTrace AI is a modern, feature-rich Android application designed to help users track, analyze, and actively reduce their daily carbon footprint. Built using Jetpack Compose, Material 3, and Room (SQLite), the application features a custom, offline-resilient AI Sustainability Coach powered by Google's **Gemini 3.5 API** via direct REST integrations. 
-
-Users can model hypothetical scenario reductions, track everyday consumption changes, set green goals, unlock gamified badges, and receive real-time personalized tips—creating a streamlined and rewarding sustainability routine.
+Welcome to **EcoTrace AI**, a highly specialized climate-tech ecosystem designed to guide individuals toward zero-carbon lifestyles. Consisting of a native Android core client and a premium glassmorphic web dynamic interface, the application bridges the gap between passive environmental anxiety and proactive ecological habit formation through real-time footprint models and smart generative design.
 
 ---
 
-## 🚀 Key Features
+## 🎯 1. Our Chosen Vertical
+This project is engineered for the **Environmental Sustainability & Personal Climate Action** vertical. 
 
-*   **Gamified Carbon Dashboard**: View a breakdown of daily estimates, track active goals, monitor eco streaks, and check progress towards custom carbon metrics.
-*   **Daily Action Tracker & Multi-log**: Add or remove daily habits (e.g., public transit, walking, vegetarian dishes) with automatic baseline delta updates.
-*   **AI Sustainability Coach**: Interactive, context-aware chatbot assisting with custom questions, lifestyle tips, and encouragement (powered by `gemini-3.5-flash`).
-*   **Scenario Simulator**: Simulate hypothetical action adjustments changes (e.g., "what if I biked instead of driving 15km every Monday?") and calculate mathematical improvements.
-*   **Insights & Trends Analysis**: Explore intuitive, Material 3 progress visualizations detailing home energy, dietary choices, and commute improvements.
-*   **Learning Center**: Read curated, bite-sized articles outlining carbon literacy, waste management, and renewable alternatives.
-*   **Gamified Unlock System**: Acquire levels and badges (e.g., *Habit Crusader*, *Energy Miser*) as streak achievements get completed.
-*   **100% Offline Resilience**: If no internet access or API credentials exist, a built-in local inference and calculation engine automatically supports calculations, coaching questions, and dashboard updates!
+### Why Sustainability?
+Global carbon reduction targets necessitate active individual participation, yet modern lifestyles hide the immediate ecological cost of daily routines. EcoTrace AI changes this dynamic by transforming opaque scientific coefficients into a colorful, highly interactive, and gamified personal experience. Across transport, diet, energy grid choices, and standby waste, users see exactly how each small adjustment folds into cumulative regional and global savings.
 
 ---
 
-## 🛠️ Technology Stack
+## 🧠 2. Approach and Logic
 
-*   **Runtime Language**: 100% Kotlin
-*   **UI Framework**: Jetpack Compose (Declarative Android Toolkit)
-*   **Design Paradigm**: Material Design 3 (M3) with Edge-to-Edge window handling
-*   **Local Persistence**: Room Database (SQLite) with custom database migrations
-*   **Asynchronous Flow**: Kotlin Coroutines and Flows (StateFlow/SharedFlow)
-*   **Dependency Injection**: Constructor-based repository pattern
-*   **Network Client**: Retrofit & OkHttp (for secure, non-blocking REST endpoints)
-*   **Config & Secret Management**: Secrets Gradle Plugin (reading from `.env` property sheets)
+Our architecture is structured around five foundational pillars:
+
+### A. Carbon Footprint Math & Category Decomposition
+Rather than displaying a simplistic, arbitrary single-digit score, EcoTrace AI breaks down carbon output into three high-leverage sectors:
+*   **Transport Logistics**: Calculations adjust dynamically for passenger-kilometers traveled across diverse transit vectors structure types (e.g., SUVs, compact EVs, heavy buses, subways, and bicycles).
+*   **Dietary Choices**: Calculated using livestock methane impact differentials, distinguishing between red meats, poultry, vegetarian, and completely vegan plant profiles.
+*   **Grid Electricity Habits**: Analyzes average passive grid consumption combined with active "vampire" standby draws and energy-efficiency behaviors.
+
+### B. "Liquid Glass" Immersive Design Paradigm
+To remove the sterile, analytical feel typical of traditional spreadsheets, the web companion features a custom **Liquid Glass Theme**:
+*   **Fluid Organic Blends**: Smoothly drifting color blobs animate in the background, signaling natural, fluid ecosystem cycles.
+*   **Saturated Glassmorphism**: Cards and panels utilize advanced CSS backdrop filters, light borders, satin sheen highlights, and rich transparency ratios to look modern, clean, and readable.
+*   **Contrast Density**: All text structures enforce rigorous contrast pairs, keeping tracking and layout clear for users on standard or dark system states.
+
+### C. Client-Side Resilience & Live LLM Hybrid Architecture
+AI agents should never freeze because of poor connectivity. Thus, the intelligence model utilizes a hybrid strategy:
+*   **Direct Gemini Integration**: If internet access is available and a client-side Google Gemini API key is configured inside the dynamic settings panel, the coach queries live models (`gemini-1.5-flash`) via secure, non-blocking asynchronous REST layers.
+*   **Local Eco-Simulator Fallback**: If offline or keyless, an intelligent local regex and profiles analyzer takes over. It intercepts query vectors and renders highly precise, mathematically sound lifestyle tips mapped perfectly to the user’s real habit configurations.
+
+### D. Gamified Progress Circles & Streak Incentives
+Habit formation leverages psychological positive reinforcement. The app features a progressive badge engine (*Habit Crusader*, *Energy Miser*, *Zero Emission Sage*) connected directly to logging streaks and habit updates, converting sustainable action into an engaging game.
+
+---
+
+## 🛠️ 3. How the Solution Works
+
+### A. Native Android Client (`com.aistudio.ecotrace.shqep`)
+*   **Tech Stack**: 100% Kotlin, Jetpack Compose, Material Design 3, Room SQLite, Kotlin Coroutines, Kotlin Serialization, and Retrofit.
+*   **State Pipeline**: Uses `MutableStateFlow` inside a shared `EcoViewModel` adhering to unidirectional data flow (UDF).
+*   **Local Persistence**: High-performance local SQL database managed via Room. All tracking states, badges unlocked, custom goals, and chat transcripts persist gracefully across application cycles.
+*   **Edge-to-Edge**: Custom topbar, scaffold padding limits, and high-DPI resolution icons matching premium Material design rules.
+
+### B. Web Companion Interface (`/docs`)
+The web companion is a lightweight, responsive single-page web app built to showcase EcoTrace's premium design elements.
+*   **Platform Sync**: The client-side database loads and saves dynamic settings directly in browser LocalStorage.
+*   **Liquid Glass Theme (`style.css`)**: Overrides background patterns using radial gradients and slow keyframe drift animations (`driftBlobs`). Utilizes high-saturation backdrop filters to render clean glass dashboards.
+*   **Floating AI Coach Chatbot**:
+    *   Initiated or revealed using an animated circular Floating Action Button (FAB) styled with a shining glass reflection and ping alerts.
+    *   The chat UI is contained entirely in a beautiful floating card panel that scale-transforms from the bottom corner of the viewport.
+    *   Features quick-selection prompt chips for rapid analysis queries without keyboard input.
+    *   Provides synchronous interaction updates: user chats instantly add bubbles, the chatbot presents a glowing "analyzing carbon profile" typing status, and replies with formatted, markdown-parsed sustainability coaching logs.
+
+---
+
+## 📋 4. Key Assumptions Made
+
+To ensure mathematical consistency and smooth system execution across both Android and Web build platforms, we established the following design assumptions:
+
+1.  **Ecological Emission Baselines**:
+    *   Standard daily baselines utilize recognized ecological guidelines (e.g., driving a medium petroleum car emits roughly `0.18 kg CO₂e` per kilometer; a standard heavy meat-diet generates roughly `6.5 kg CO₂e` daily, whereas a vegan diet generates `1.5 kg CO₂e`).
+    *   While individual localized climates vary, using these standardized coefficients allows predictable mathematical outputs for users modeling scenario changes.
+2.  **Stateless API Security**:
+    *   Client-side Google Workspace / Google Cloud Gemini keys are not hardcoded or sent to intermediary servers. They run directly over clean browser-to-server REST headers or stored variables within secure `.env` files to maintain user confidentiality.
+3.  **Local Storage as Root of Web Truth**:
+    *   To mirror a true client database without server databases on static web builds, LocalStorage is assumed to be consistently available, enabling data persistence across browser sessions.
+4.  **Device Compatibility**:
+    *   The Web app assumes modern browser engines supporting standard CSS variables, keyframe animations, and `backdrop-filter` styles (standard on Chrome, Safari, and Firefox).
 
 ---
 
@@ -36,124 +78,42 @@ Users can model hypothetical scenario reductions, track everyday consumption cha
 
 ```text
 EcoTrace AI/
-├── app/                          # Main Android Module
+├── app/                          # Main native Android application module
 │   ├── src/main/java/com/example/
-│   │   ├── MainActivity.kt       # Application Entrypoint & Navigation Flow
+│   │   ├── MainActivity.kt       # Android Screen router and navigation flow
 │   │   ├── ai/
-│   │   │   └── GeminiClient.kt   # Retrofit client and comprehensive offline fallback logic 
+│   │   │   └── GeminiClient.kt   # Retrofit gateway and fallback simulator
 │   │   ├── data/
-│   │   │   ├── AppDatabase.kt    # SQLite Room Database definition
-│   │   │   ├── AppDaos.kt        # Room Data Access Objects for Profile, Tracks, Goals, Badges, Chat
-│   │   │   ├── CarbonCalculator.kt # Footprint math and category decomposition utilities
-│   │   │   ├── EcoRepository.kt  # Centralized repository combining databases & initial data seed
-│   │   │   └── Entities.kt       # Room Entity Definitions
-│   │   └── ui/
-│   │       ├── EcoViewModel.kt   # Shared application state, flow logic, and background actions
-│   │       ├── screens/          # Individual screen composables (Home, Tracker, Insights, Coach, etc.)
-│   │       └── theme/            # Material 3 Color Schemes, Typography definitions, and Theme Setup
-│   └── build.gradle.kts          # App-level build specifications & package dependencies
-├── gradle/                       # Gradle Wrapper configuration and Version Catalogs
-│   └── libs.versions.toml        # Unified Dependency/Plugin Version Catalog
+│   │   │   ├── AppDatabase.kt    # SQLite Room definitions
+│   │   │   ├── CarbonCalculator.kt # Emission coefficients and math models
+│   │   │   └── Entities.kt       # Profile and task log entities
+...
+├── docs/                         # Dynamic Web Dashboard companion
+│   ├── index.html                # Main layout, responsive panels, & Floating AI Coach UI
+│   ├── style.css                 # Custom glassmorphism, drifting blobs, and glowing FAB styles
+│   └── script.js                 # Dynamic JS state engine, chatbot handles, & LocalStorage sync
 ├── build.gradle.kts              # Project-level dependencies
-├── settings.gradle.kts           # Multi-module root build definitions
-├── .env.example                  # Template configuration for collaborative clones
-├── .gitignore                    # Industry-standard repository clean exclusions
-└── README.md                     # Project documentation (this file)
+├── settings.gradle.kts           # Multi-module root paths
+└── README.md                     # Central documentation file (this document)
 ```
 
 ---
 
-## 🔑 Environment Variable Setup
+## 🚀 Getting Started
 
-This project uses the secure **Secrets Gradle Plugin** to load configuration variables into the generated `BuildConfig` class at compile time without exposing actual API keys inside source files.
+### 🖥️ 1. Exploring the Web Experience
+To interact with the premium liquid glass layout and floating AI Sustainability Coach:
+1. Double-click **`/docs/index.html`** or navigate to the shared web preview URL.
+2. Click the floating green chat bubble (`💬`) in the bottom-right corner to open the AI Coach!
+3. Tap on quick-prompt chips like *"Recommend 3 Eco-friendly habits"* or enter custom text.
+4. Open the **Settings Tab** on the main glass panel to enter an optional private Gemini API key to activate live generative responses from `gemini-1.5-flash`.
 
-1. Locate the `.env.example` in the root directory. It contains:
-   ```properties
-   GEMINI_API_KEY=YOUR_API_KEY_HERE
-   ```
-2. Create a duplicate file named exactly `.env` in the same directory (which is automatically ignored by `.gitignore` to protect your secrets):
-   ```bash
-   cp .env.example .env
-   ```
-3. Open your newly created `.env` file and replace `YOUR_API_KEY_HERE` with your active Google Gemini API Key:
-   ```properties
-   GEMINI_API_KEY=AIzaSyA...YOUR_ACTUAL_KEY...
-   ```
+### 📱 2. Compiling the Android Core App
+1. Load the project in Android Studio.
+2. Configure your Gemini API key in your secure local `.env` property sheets at the workspace root folder.
+3. Link an active physical Android device via USB debugging or spin up a Virtual Emulator.
+4. Execute `./gradlew assembleDebug` or use the IDE play trigger to deploy instant native APKs!
 
 ---
 
-## 💡 How to Obtain a Gemini API Key
-
-1. Navigate to the Google AI Studio: **[https://aistudio.google.com/](https://aistudio.google.com/)**
-2. Sign in with your Google Account.
-3. Click on the **"Get API key"** button on the sidebar.
-4. Click **"Create API Key"** and choose to link a Google Cloud Project (or create a standard prompt-only key).
-5. Copy the generated key and paste it directly into your local `.env` file as described above.
-
----
-
-## 💻 Running the App Locally
-
-To build, install, and iterate on this project yourself:
-
-### Prerequisites
-*   **Android Studio Ladybug (or higher)**
-*   **JDK 17 or higher**
-*   **Android SDK (Target API 36, Min API 24)**
-
-### Steps
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/your-username/ecotrace-ai.git
-   cd ecotrace-ai
-   ```
-2. **Setup the `.env` configuration file**:
-   (See the **Environment Variable Setup** section above).
-3. **Open in Android Studio**:
-   * Launch Android Studio and select `Open an existing project`.
-   * Navigate to the `ecotrace-ai` folder and select it.
-   * Allow Gradle to run a clean background synchronization.
-4. **Compile and Launch**:
-   * Attach a physical Android Device with USB Debugging enabled, or boot a Virtual Device Emulator (API level 24+ recommended).
-   * Click the **Run** button (green play icon on top bar), or use the hotkey `Shift + F10`.
-
----
-
-## 📦 Building a Release APK
-
-To distribute a standalone APK or bundle for deployment or side-loading:
-
-Navigate to the project root and execute the standard Gradle assemble command:
-
-```bash
-# On Unix-like systems (Linux / macOS / Git Bash)
-./gradlew assembleDebug
-
-# Or utilizing the native gradle toolchain
-gradle :app:assembleDebug
-```
-
-The resulting debug-signed APK will be generated at the following path:
-`app/build/outputs/apk/debug/app-debug.apk`
-
----
-
-## 🐞 Common Troubleshooting Steps
-
-### 1. Build Fails with "Local properties not loaded" or "Invalid Secret"
-*   **Resolution**: Ensure that the `.env` file is present in the absolute root folder, and that it contains the exact key string: `GEMINI_API_KEY=...`. Note that standard `.properties` configurations or spaces surrounding the `=` character can cause issues. Keep formatting exact.
-
-### 2. Gradle Out Of Memory/Timeout during KSP compilation
-*   **Resolution**: Open your local `gradle.properties` file and increase the daemon heap size:
-    ```properties
-    org.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=512m
-    ```
-
-### 3. AI Coach chat responds with "Evaluating..." or default fallback advice
-*   **Resolution**: This indicates either the app could not find a valid Gemini API key (defaults to fallback) or internet access is missing. Check logcat for tags `GeminiClient` to verify if a valid API key is correctly loaded into `BuildConfig.GEMINI_API_KEY`.
-
----
-
-## 📄 License
-
-This repository is distributed under the open-source **MIT License**. Check out [LICENSE](LICENSE) for absolute redistribution and private usage conditions.
+*Formulated with passion for clean ecosystems and high-fidelity interface design.* 🌿
