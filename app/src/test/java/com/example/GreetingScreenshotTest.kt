@@ -1,8 +1,12 @@
 package com.example
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import com.example.ui.theme.MyApplicationTheme
+import com.example.ui.screens.LearningCenterScreen
 import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import com.github.takahirom.roborazzi.captureRoboImage
 import org.junit.Rule
@@ -20,9 +24,17 @@ class GreetingScreenshotTest {
   @get:Rule val composeTestRule = createComposeRule()
 
   @Test
-  fun greeting_screenshot() {
-    composeTestRule.setContent { MyApplicationTheme { Greeting("Robolectric") } }
+  fun app_learning_center_screenshot() {
+    composeTestRule.setContent {
+      MyApplicationTheme {
+        Surface(modifier = Modifier.fillMaxSize()) {
+          LearningCenterScreen(onBack = {})
+        }
+      }
+    }
 
-    composeTestRule.onRoot().captureRoboImage(filePath = "src/test/screenshots/greeting.png")
+    composeTestRule.waitForIdle()
+    // Align with standard testing specifications
+    composeTestRule.onRoot().captureRoboImage(filePath = "src/test/screenshots/learning_center.png")
   }
 }
