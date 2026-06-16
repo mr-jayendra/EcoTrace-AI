@@ -1339,6 +1339,134 @@ function initTheme() {
     }
 }
 
+// --- FLOATING COACH CHATBOT HANDLERS ---
+function toggleFloatingChat(event) {
+    if (event) event.stopPropagation();
+    const panel = document.getElementById('floating-chat-panel');
+    if (!panel) return;
+
+    if (panel.classList.contains('hidden')) {
+        panel.classList.remove('hidden');
+        setTimeout(() => {
+            panel.classList.remove('scale-90', 'translate-y-10', 'opacity-0');
+        }, 10);
+        renderFloatingChatHistory();
+    } else {
+        panel.classList.add('scale-90', 'translate-y-10', 'opacity-0');
+        setTimeout(() => {
+            panel.classList.add('hidden');
+        }, 300);
+    }
+}
+
+function renderFloatingChatHistory() {
+    const chatContainer = document.getElementById('floatingChatHistory');
+    if (!chatContainer) return;
+
+    if (state.chatHistory.length === 0) {
+        state.chatHistory.push({
+            sender: 'ai',
+            text: `Hello, I'm your AI Sustainability Coach 🌱. I've analyzed your configuration profile! Today's emissions baseline is roughly **${(calcBaselineBreakdown(state.profile).totalDaily).toFixed(1)} kg CO₂e**. Click a quick action prompt below or ask me any custom optimization query!`,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+    }
+
+    chatContainer.innerHTML = state.chatHistory.map(msg => {
+        const isUser = msg.sender === 'user';
+        const profileLogo = isUser ? '👤' : '💚';
+        const msgBg = isUser ? 'bg-emerald-500 text-white rounded-br-none' : 'bg-gray-100/60 dark:bg-zinc-800/60 text-gray-800 dark:text-zinc-100 rounded-bl-none';
+        
+        return `
+            <div class="flex items-start gap-2.5 w-full ${isUser ? 'flex-row-reverse' : ''}">
+                <div class="w-6.5 h-6.5 rounded-full bg-emerald-100 dark:bg-emerald-950/40 flex items-center justify-center text-xs shadow-sm">${profileLogo}</div>
+                <div class="max-w-[85%] p-2.5 rounded-2xl ${msgBg} shadow-sm backdrop-blur-sm border border-white/5">
+                    <p class="text-xs leading-relaxed whitespace-pre-line">${parseMarkdownMock(msg.text)}</p>
+                    <span class="text-[8px] text-gray-400 dark:text-gray-500 mt-1.5 block ${isUser ? 'text-right' : ''}">${msg.timestamp}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    // Fast-loading floating prompt chips inside the widget
+    const promptChipsBox = document.getElementById('floatingQuickChips');
+    if (promptChipsBox) {
+        promptChipsBox.innerHTML = COACH_PROMPTS.map(p => {
+            return `<button onclick="submitFloatingCoachQuestion('${p}')" class="px-2.5 py-1.5 rounded-xl border border-gray-100/40 dark:border-zinc-800/40 hover:border-emerald-500 hover:bg-emerald-50/10 text-[9px] font-semibold text-gray-700 dark:text-zinc-200 transition-all text-left truncate max-w-[140px] inline-block whitespace-nowrap bg-white/20 dark:bg-zinc-900/20">${p}</button>`;
+        }).join('');
+    }
+}
+
+function submitFloatingCoachQuestion(promptVal) {
+    const inputEl = document.getElementById('floatingChatInput');
+    const question = promptVal || inputEl?.value?.trim();
+    if (!question) return;
+
+    if (inputEl) inputEl.value = '';
+
+    // Add user question to history
+    state.chatHistory.push({
+        sender: 'user',
+        text: question,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    });
+
+    renderFloatingChatHistory();
+    renderCoachHistory(); // Syncs standard AI Coach screen history!
+
+    // Show floating-specific loader
+    const indicator = document.getElementById('floatingChatTyping');
+    if (indicator) indicator.classList.remove('hidden');
+
+    setTimeout(async () => {
+        if (indicator) indicator.classList.add('hidden');
+        
+        // Dual-supported live Gemini API call validation
+        const hasKey = (state.geminiApiKey || '').length > 5;
+        let reply = '';
+        if (hasKey) {
+            try {
+                reply = await callLiveGeminiAPI(question);
+            } catch (e) {
+                console.error("Gemini failed, fallback to local simulator.", e);
+            }
+        }
+        
+        if (!reply) {
+            // Local fallback simulator logic
+            const txtLower = question.toLowerCase();
+            const baseline = calcBaselineBreakdown(state.profile);
+            reply = `I have analyzed your query! Here is some key input based on your current profile:`;
+            
+            if (txtLower.includes("tips") || txtLower.includes("carbon profile") || txtLower.includes("optimize")) {
+                reply = `Based on your profile, here are 3 direct actionable optimization tips:
+• **Transport**: Switching your daily ${state.profile.transportDistance}km transit is the highest priority!
+• **Meals**: Substituting beef with poultry or rich vegetable salads saves over 50% diet CO₂e share.
+• **Power**: Shutting down standby laptop brick chargers reduces power plant reliance.`;
+            } else if (txtLower.includes("diet") || txtLower.includes("meal") || txtLower.includes("food")) {
+                reply = `Agriculture accounts for massive global methane totals. Your diet is saved as **${state.profile.dietType}**. Starting with vegetarian lunches cuts your dietary index contribution exactly by 50%!`;
+            } else if (txtLower.includes("transport") || txtLower.includes("car") || txtLower.includes("driving") || txtLower.includes("commute")) {
+                reply = `You commuting mode is configured as a **${state.profile.transportType}** for **${state.profile.transportDistance} km/day**. Shifting to a public mass train or bus splits emissions evenly with other passengers, lowering yours by 60%+!`;
+            } else if (txtLower.includes("electricity") || txtLower.includes("vampire") || txtLower.includes("energy")) {
+                reply = `Your home electricity is set up under **${state.profile.energyHabit}** habit levels. Doing simple vampire power checks saves 0.5kg daily standard!`;
+            } else {
+                reply = `To minimize carbon output, start with high-leverage habits: buy fresh local protein over red meat, cycle for distances under 5km, and turn off auxiliary heaters. If you want live Gemini analysis, enter an API Key inside Settings!`;
+            }
+        }
+
+        state.chatHistory.push({
+            sender: 'ai',
+            text: reply,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+
+        renderFloatingChatHistory();
+        renderCoachHistory(); // Syncs standard AI Coach screen history!
+        saveState();
+    }, 1500);
+}
+
 // --- INIT WORKFLOW ON LOAD ---
 window.addEventListener('DOMContentLoaded', () => {
     initTheme();
